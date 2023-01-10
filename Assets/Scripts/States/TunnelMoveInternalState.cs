@@ -8,6 +8,7 @@ public class TunnelMoveInternalState : MonoBehaviour
     [SerializeField] private BezierObject _bezier;
     [SerializeField] private MeshRenderer _renderer;
     [SerializeField] private TunnelMap _map;
+    [SerializeField] private bool _isMirrored;
 
     private MaterialPropertyBlock _propertyBlock;
     private int? _index;
@@ -50,7 +51,8 @@ public class TunnelMoveInternalState : MonoBehaviour
         var speedTile = _playerData.Speed * Time.deltaTime / _map.DetailLength * yScale;
 
         yTile += speedTile;
-        mainTexST.w = yTile;
+        yTile = _isMirrored ? (yTile % 2) : (yTile % 1);
+        mainTexST.w = yTile;// % 1;
 
         //_propertyBlock = _propertyBlock ?? new MaterialPropertyBlock();
         //_propertyBlock.SetVector("_MainTex_ST", mainTexST);

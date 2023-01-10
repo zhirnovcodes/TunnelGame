@@ -14,9 +14,26 @@ public class TunnelMapGeneratorStrategy : ITunnelMapGeneratorStrategy
 
         if (directionTwo.z >= 1)
         {
-            directionTwo = Vector3.right;
+            var r = Random.Range(0, 5);
+            switch (r)
+            {
+                case 0:
+                    directionTwo = Vector3.right; break;
+                case 1:
+                    directionTwo = Vector3.left; break;
+                case 2:
+                    directionTwo = Vector3.down; break;
+                case 3:
+                    directionTwo = Vector3.up; break;
+                case 4:
+                    directionTwo = Vector3.forward; break;
+            }
         }
-        else if (directionTwo.x >= 1)
+        else if (Mathf.Abs(directionTwo.y) >= 1)
+        {
+            directionTwo = Vector3.forward;
+        }
+        else if (Mathf.Abs(directionTwo.x) >= 1)
         {
             directionTwo = Vector3.forward;
         }

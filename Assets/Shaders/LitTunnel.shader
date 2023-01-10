@@ -137,7 +137,7 @@ Shader "Zhirnov/LitTunnel"
             m.normal = bN;
             m.tangent = bT;
             m.uv = m.texcoord;
-            m.color = float4(0,0,0,roundEdgeFade);
+            m.color = float4(m.texcoord.xy,0,roundEdgeFade);
 		}
 
         void surf (Input IN, inout SurfaceOutputStandard o)
@@ -148,6 +148,8 @@ Shader "Zhirnov/LitTunnel"
             o.Metallic = UnpackNormal( tex2D( _MetalicMap, IN.uv_MainTex ) ) * _Metallic;
             o.Smoothness = _Glossiness;
             o.Alpha = c.a;
+
+
         }
         ENDCG
     }
