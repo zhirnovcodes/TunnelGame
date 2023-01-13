@@ -16,6 +16,10 @@ public class TunnelIdleState : MonoBehaviour
         if (Application.isPlaying)
         {
             ResetBezier();
+            if (_nextState == null)
+            {
+                return;
+            }
             _nextState.enabled = true;
             this.enabled = false;
         }
@@ -28,7 +32,6 @@ public class TunnelIdleState : MonoBehaviour
         {
             ResetBezier();
         }
-        return;
 #endif
     }
 

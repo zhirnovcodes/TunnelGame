@@ -1,6 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
+public enum MapStrategyType
+{
+    Default,
+    Curl
+}
+
 public interface ITunnelMapGeneratorStrategy
 {
     void Generate(ref Vector3 directionOne, ref Vector3 directionTwo);
@@ -36,6 +41,22 @@ public class TunnelMapGeneratorStrategy : ITunnelMapGeneratorStrategy
         else if (Mathf.Abs(directionTwo.x) >= 1)
         {
             directionTwo = Vector3.forward;
+        }
+    }
+}
+
+public class TunnelCurlGeneratorStrategy : ITunnelMapGeneratorStrategy
+{
+    public void Generate(ref Vector3 directionOne, ref Vector3 directionTwo)
+    {
+        directionOne = directionTwo;
+        if (directionTwo.y > 0)
+        {
+            directionTwo = Vector3.forward;
+        }
+        else
+        {
+            directionTwo = Vector3.up;
         }
     }
 }

@@ -15,7 +15,11 @@ Shader "Zhirnov/LitTunnel"
 
         _HeightPower ("Height Power", Range(0.01,5)) = 1
         _NoiseFrequency ("Noise Frequency", Range(0, 10)) = 1
-        _FadeEdge ("Fade Edge", Range(0, 0.5)) = 0
+
+        _Slices ("Slices", Float) = 4
+        _FadeEdge ("Fade Edge", Range(0, 1)) = 0
+        _DarkenEdge ("Darken Edge", Range(0, 1)) = 0
+        _DarkenEdgePower ("Darken Edge Power", Range(0, 1)) = 0
     }
     SubShader
     {
@@ -43,6 +47,9 @@ Shader "Zhirnov/LitTunnel"
         half _Glossiness;
         half _Metallic;
         float _NoiseFrequency;
+        float _DarkenEdge;
+        float _DarkenEdgePower;
+        float _Slices;
         float _FadeEdge;
         fixed4 _Color;
         fixed4 _BlendColor;
@@ -58,6 +65,7 @@ Shader "Zhirnov/LitTunnel"
         {
             float2 uv_MainTex;
             float2 uv_NormalMap;
+            float4 screenPos;
             float4 color : COLOR;
             float2 texcoord    : TEXCOORD0;
             float2 uv    : TEXCOORD1;
@@ -86,39 +94,16 @@ Shader "Zhirnov/LitTunnel"
         
         void vert (inout MeshData m)
         {
-            ObjectPosNormal vPosN = //_PointsCount >= 4 ? changeObjectPositionNormal(m.vertex, m.normal, m.texcoord.y, normalize(_Up)) : 
-                changeObjectPositionNormal3(m.vertex, m.normal, m.texcoord.y, normalize(_Up));
+            float4x4 bezierTransform = getBezierTransform(m.texcoord.y, normalize(_Up));
+
+            ObjectPosNormal vPosN = applyBezierTransform(m.vertex, m.normal, bezierTransform);
 
             float4 bP = vPosN.position;
             float3 bN = vPosN.normal;
             float4 bT = vPosN.tangent;
-
-
-            //float yOffset = tex2Dlod(_HeightMap, float4(0, m.texcoord.y, 0, 0)).r * _HeightPower;
-            //heightOffset = float4(bN * yOffset, 0);
-            //bP += heightOffset;
-            //float4 offset = UnpackNormal( tex2Dlod( _HeightMap, float4(IN.uv_MainTex, 0, 0)) ).r * bN * _HeightPower;
-            //bP += offset;
-            
-            /*
-            float4 noColor = float4(0,0,0,1);
-            float4 wColor = float4(1,1,1,1);
-            if (m.texcoord.y > _RoundEdge && m.texcoord.y < 1 - _RoundEdge)
-            {
-                m.color = noColor;
-			}
-            else if (m.texcoord.y <= _RoundEdge)
-            {
-                m.color = lerp(wColor, noColor, m.texcoord.y/_RoundEdge);
-			}
-            else if (m.texcoord.y >= 1 - _RoundEdge)
-            {
-                m.color = lerp(wColor, noColor, (1 - m.texcoord.y)/_RoundEdge);
-			}
-            */
             float2 newTexcoord = TRANSFORM_TEX(m.texcoord, _HeightMap);
             
-            //float3 normal = UnpackNormal( tex2Dlod( _NormalMap, float4( newTexcoord,0,0) ) );
+            /*
             float cornerSmoothVariant = 0.1;
             float noiseHeight = getNoise( float3(newTexcoord, 0) );
             if ( newTexcoord.x <= cornerSmoothVariant )
@@ -127,9 +112,11 @@ Shader "Zhirnov/LitTunnel"
                 float smoothT = invLerp(0, cornerSmoothVariant, newTexcoord.x);
                 noiseHeight = lerp(noiseMax, noiseHeight, smoothT);
 			}
+            */
 
-            //float4 offset = max(tex2Dlod(_HeightMap, float4(newTexcoord,0,0)).r * _HeightPower * noiseHeight, 0) * float4(bN, 0);
-            //bP += offset;
+            //float radius = length(bezierTransform[3].xyz - bP.xyz) / _Radius;
+            //radius = invLerp(_Radius - 0.01, _Radius, radius);
+
             float roundEdgeFade = saturate(invLerp(1 - _FadeEdge, 1, m.texcoord.y));
             roundEdgeFade *= 2;
 
@@ -142,7 +129,12 @@ Shader "Zhirnov/LitTunnel"
 
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
-            fixed4 c = lerp(tex2D (_MainTex, IN.uv_MainTex) * _Color, _BlendColor, IN.color.a);
+            float uLocal = fmod(IN.color.x * _Slices, 1);
+            float uNew = 1 - saturate(abs(uLocal - 0.5) * 2);
+            float darkenEdge = saturate(invLerp(0, lerp(0, _DarkenEdge, IN.color.y), uNew) * (1 - IN.color.y) );
+            darkenEdge = lerp(1, darkenEdge, _DarkenEdgePower);
+
+            fixed4 c = lerp(tex2D (_MainTex, IN.uv_MainTex) * _Color * darkenEdge, _BlendColor, IN.color.a);
             o.Albedo = c.rgb;
             o.Normal = UnpackNormal( tex2D( _NormalMap, IN.uv_MainTex ) );
             o.Metallic = UnpackNormal( tex2D( _MetalicMap, IN.uv_MainTex ) ) * _Metallic;

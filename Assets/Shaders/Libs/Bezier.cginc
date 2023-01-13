@@ -35,19 +35,6 @@ float3 getBezierTangent(float t)
 	return normalize(tangent);
 }
 
-float4x4 getBezierTransform(float t, float3 up)
-{
-	//float3 up = float3(0, 1, 0);
-
-	float3 pos = getBezierPoint(t);
-
-	float3 tan = getBezierTangent(t);
-	float3 bit = normalize(cross( up, tan ));
-	float3 nor = normalize(cross( tan, bit ));
-
-	return float4x4(float4(bit, 0), float4(nor, 0), float4(tan, 0), float4(pos, 0));//{{bit, 0},{nor, 0},{tan, 0},{0, 0, 0});
-	//return float4x4(float4(1,0,0,0), float4(0,1,0, 0), float4(0,0,1, 0), float4(0,0,0, 1));//{{bit, 0},{nor, 0},{tan, 0},{0, 0, 0});
-}
 
 float3 getBezierNormal2D( float t ) 
 {
@@ -75,24 +62,19 @@ struct ObjectPosNormal
 	float4 tangent;
 };
 
-ObjectPosNormal changeObjectPositionNormal(float4 position, float3 normal, float2 t, float3 up)
+float4x4 getBezier4Transform(float t, float3 up)
 {
-    float4x4 bezTr = getBezierTransform(t, up);
+	//float3 up = float3(0, 1, 0);
 
-    float4 bezPos = bezTr[3];
+	float3 pos = getBezierPoint(t);
 
-    float4 vPos = mul(float4(position.xy, 0, 0), bezTr);
-	float3 vNor = normalize(mul(normal, bezTr).xyz);
+	float3 tan = getBezierTangent(t);
+	float3 bit = normalize(cross( up, tan ));
+	float3 nor = normalize(cross( tan, bit ));
 
-    vPos += bezPos;
-
-	ObjectPosNormal result;
-	result.position = vPos;
-	result.normal = vNor;
-	result.tangent = bezTr[2];
-    return result;
+	return float4x4(float4(bit, 0), float4(nor, 0), float4(tan, 0), float4(pos, 0));//{{bit, 0},{nor, 0},{tan, 0},{0, 0, 0});
+	//return float4x4(float4(1,0,0,0), float4(0,1,0, 0), float4(0,0,1, 0), float4(0,0,0, 1));//{{bit, 0},{nor, 0},{tan, 0},{0, 0, 0});
 }
-
 
 float4x4 getBezier3Transform(float t, float3 up)
 {
@@ -112,20 +94,31 @@ float4x4 getBezier3Transform(float t, float3 up)
 	return float4x4(float4(bit, 0), float4(nor, 0), float4(tan, 0), float4(pos, 0));
 }
 
-ObjectPosNormal changeObjectPositionNormal3(float4 position, float3 normal, float2 t, float3 up)
+float4x4 getBezierTransform(float t, float3 up)
 {
-    float4x4 bezTr = getBezier3Transform(t, up);
+	float pointsCount = _BezierNodes[3].w;
+	float4x4 bezTr = (pointsCount <= 3) ? getBezier3Transform(t, up) : getBezier4Transform(t, up);
+	return bezTr;
+}
 
-    float4 bezPos = bezTr[3];
+ObjectPosNormal applyBezierTransform(float4 position, float3 normal, float4x4 transform)
+{
+    float4 bezPos = transform[3];
 
-    float4 vPos = mul(float4(position.xy, 0, 0), bezTr);
-	float3 vNor = normalize(mul(normal, bezTr).xyz);
+    float4 vPos = mul(float4(position.xy, 0, 0), transform);
+	float3 vNor = normalize(mul(normal, transform).xyz);
 
     vPos += bezPos;
 
 	ObjectPosNormal result;
 	result.position = vPos;
 	result.normal = vNor;
-	result.tangent = bezTr[2];
+	result.tangent = transform[2];
     return result;
+}
+
+ObjectPosNormal changeObjectPositionNormal(float4 position, float3 normal, float2 t, float3 up)
+{
+	float4x4 bezTr = getBezierTransform(t, up);
+	return applyBezierTransform(position, normal, bezTr);
 }

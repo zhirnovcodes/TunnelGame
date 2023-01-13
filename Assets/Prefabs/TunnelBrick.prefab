@@ -166,7 +166,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4446a32cdd4758a4189592bede996e5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _playerData: {fileID: 0}
+  _tunnelData: {fileID: 0}
   _bezier: {fileID: 6261936931361237758}
   _renderer: {fileID: 6261936930405349570}
   _map: {fileID: 6261936930405349574}

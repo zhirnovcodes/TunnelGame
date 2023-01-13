@@ -164,6 +164,7 @@ public static class BezierExtentions
         }
 
         var matrix = new Matrix4x4();
+        int pointsCount = 0;
         for (int i = 0; i < 4; i++)
         {
             var t = bezier.GetTransform(i);
@@ -173,9 +174,19 @@ public static class BezierExtentions
                 {
                     return;
                 }
+                break;
+            }
+            else
+            {
+                pointsCount++;
             }
             matrix.SetRow(i, t == null ? Vector3.zero : t.position);
         }
+
+        var lastRow = matrix.GetRow(3);
+        lastRow.w = pointsCount;
+        matrix.SetRow(3, lastRow);
+
         block.SetMatrix(propertyNameId.Value, matrix);
         renderer.SetPropertyBlock(block);
     }

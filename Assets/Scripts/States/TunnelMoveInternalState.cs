@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class TunnelMoveInternalState : MonoBehaviour
 {
-    [SerializeField] private PlayerData _playerData;
+    [SerializeField] private TunnelMotionData _tunnelData;
     [SerializeField] private BezierObject _bezier;
     [SerializeField] private MeshRenderer _renderer;
     [SerializeField] private TunnelMap _map;
     [SerializeField] private bool _isMirrored;
+    [SerializeField] private MapStrategyType _mapStrategy;
 
     private MaterialPropertyBlock _propertyBlock;
     private int? _index;
@@ -18,12 +19,23 @@ public class TunnelMoveInternalState : MonoBehaviour
     private void OnEnable()
     {
         _t = 0;
-        _strategy = _strategy ?? new TunnelMapGeneratorStrategy();
+        if (_strategy == null)
+        {
+            switch (_mapStrategy)
+            {
+                case MapStrategyType.Default:
+                    _strategy = new TunnelMapGeneratorStrategy();
+                    break;
+                case MapStrategyType.Curl:
+                    _strategy = new TunnelCurlGeneratorStrategy();
+                    break;
+            }
+        }
     }
 
     void Update()
     {
-        var speedT = _playerData.Speed * Time.deltaTime / _map.DetailLength / 2f;
+        var speedT = _tunnelData.Speed * Time.deltaTime / _map.DetailLength / 2f;
         _t += speedT;
 
         if (_t >= 1)
@@ -48,7 +60,7 @@ public class TunnelMoveInternalState : MonoBehaviour
         var mainTexST = _renderer.sharedMaterial.GetVector("_MainTex_ST");
         var yScale = mainTexST.y;
         var yTile = mainTexST.w;
-        var speedTile = _playerData.Speed * Time.deltaTime / _map.DetailLength * yScale;
+        var speedTile = _tunnelData.Speed * Time.deltaTime / _map.DetailLength * yScale;
 
         yTile += speedTile;
         yTile = _isMirrored ? (yTile % 2) : (yTile % 1);
@@ -57,7 +69,6 @@ public class TunnelMoveInternalState : MonoBehaviour
         //_propertyBlock = _propertyBlock ?? new MaterialPropertyBlock();
         //_propertyBlock.SetVector("_MainTex_ST", mainTexST);
         _renderer.sharedMaterial.SetVector("_MainTex_ST", mainTexST);
-        Debug.Log(speedTile + " " + yTile);
 
 
         _bezier.Bezier.SendBezierToShader(_renderer, ref _propertyBlock, ref _index);
