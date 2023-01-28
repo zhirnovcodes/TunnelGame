@@ -16,6 +16,8 @@ public class MeshGenerator : MonoBehaviour
     private Mesh2D _mesh2D;
     private Mesh3D _tunnel;
 
+    public float Radius => _radius;
+
     public void RepaintTunnel()
     {
         ResetMesh3D();

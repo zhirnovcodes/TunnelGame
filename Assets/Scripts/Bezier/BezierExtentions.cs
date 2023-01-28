@@ -13,15 +13,45 @@ public static class BezierExtentions
 
     public static BezierPoint Lerp(this Bezier bezier, float t)
     {
-        if (bezier.Point0 == null || bezier.Point1 == null || bezier.Point2 == null || bezier.Point3 == null)
+        if (bezier.Point0 == null || bezier.Point1 == null || bezier.Point2 == null)
         {
             return new BezierPoint();
         }
 
-        // pos
-        var p0 = Vector3.Lerp(bezier.Point0.position, bezier.Point1.position, t);
-        var p1 = Vector3.Lerp(bezier.Point1.position, bezier.Point2.position, t);
-        var p2 = Vector3.Lerp(bezier.Point2.position, bezier.Point3.position, t);
+        if (bezier.Point3 == null)
+        {
+            return LerpBezier(bezier.Point0.position, bezier.Point1.position, bezier.Point2.position, t);
+        }
+
+        return LerpBezier(bezier.Point0.position, bezier.Point1.position, bezier.Point2.position, bezier.Point3.position, t);
+    }
+    
+    public static BezierPoint Lerp(this BezierData bezier, float t)
+    {
+        if (bezier.PointsCount == 4)
+        {
+            return LerpBezier(bezier.P0, bezier.P1, bezier.P2, bezier.P3, t);
+        }
+        return LerpBezier(bezier.P0, bezier.P1, bezier.P2, t);
+
+    }
+
+    public static BezierData Slerp(BezierData bezier1, BezierData bezier2, float t)
+    {
+        return new BezierData()
+        {
+            P0 = Vector3.Slerp(bezier1.P0, bezier2.P0, t),
+            P1 = Vector3.Slerp(bezier1.P1, bezier2.P1, t),
+            P2 = Vector3.Slerp(bezier1.P2, bezier2.P2, t),
+            P3 = Vector3.Slerp(bezier1.P3, bezier2.P3, t)
+        };
+    }
+
+    public static BezierPoint LerpBezier(Vector3 point0, Vector3 point1, Vector3 point2, Vector3 point3, float t)
+    {
+        var p0 = Vector3.Lerp(point0, point1, t);
+        var p1 = Vector3.Lerp(point1, point2, t);
+        var p2 = Vector3.Lerp(point2, point3, t);
 
         var p3 = Vector3.Lerp(p0, p1, t);
         var p4 = Vector3.Lerp(p1, p2, t);
@@ -34,16 +64,10 @@ public static class BezierExtentions
         return new BezierPoint { Position = p5, Rotation = Quaternion.LookRotation(q0) };
     }
 
-    public static BezierPoint Lerp3(this Bezier bezier, float t)
+    public static BezierPoint LerpBezier(Vector3 point0, Vector3 point1, Vector3 point2, float t)
     {
-        if (bezier.Point0 == null || bezier.Point1 == null || bezier.Point2 == null)
-        {
-            return new BezierPoint();
-        }
-
-        // pos
-        var p0 = Vector3.Lerp(bezier.Point0.position, bezier.Point1.position, t);
-        var p1 = Vector3.Lerp(bezier.Point1.position, bezier.Point2.position, t);
+        var p0 = Vector3.Lerp(point0, point1, t);
+        var p1 = Vector3.Lerp(point1, point2, t);
 
         var p3 = Vector3.Lerp(p0, p1, t);
 
@@ -51,6 +75,29 @@ public static class BezierExtentions
         var q0 = (p1 - p0).normalized;
 
         return new BezierPoint { Position = p3, Rotation = Quaternion.LookRotation(q0) };
+    }
+
+    public static BezierPoint Lerp(this BezierData4 bezier, float t)
+    {
+        return LerpBezier(bezier.P0, bezier.P1, bezier.P2, bezier.P3, t);
+    }
+
+    public static BezierPoint Lerp(this BezierData3 bezier, float t)
+    {
+        return LerpBezier(bezier.P0, bezier.P1, bezier.P2, t);
+    }
+
+    public static BezierData ToBezierData(this BezierObject o)
+    {
+        var pointsCount = o.Bezier.Point3 == null ? 3 : 4;
+        return new BezierData
+        {
+            P0 = o.Bezier.Point0.position,
+            P1 = o.Bezier.Point1.position,
+            P2 = o.Bezier.Point2.position,
+            P3 = pointsCount == 3 ? Vector3.zero : o.Bezier.Point3.position,
+            PointsCount = pointsCount
+        };
     }
 
     public static void SetPositionRotation(this Bezier bezier, Vector3 position, Quaternion rotation, int index)
@@ -189,5 +236,23 @@ public static class BezierExtentions
 
         block.SetMatrix(propertyNameId.Value, matrix);
         renderer.SetPropertyBlock(block);
+    }
+
+
+    public static void SendBezierToShader(BezierData bezier, Material material, ref int? propertyNameId)
+    {
+        if (propertyNameId == null)
+        {
+            propertyNameId = Shader.PropertyToID("_BezierNodes");
+        }
+
+        var matrix = new Matrix4x4();
+        matrix.SetRow(0, bezier.P0);
+        matrix.SetRow(1, bezier.P1);
+        matrix.SetRow(2, bezier.P2);
+        var lastRow = new Vector4(bezier.P3.x, bezier.P3.y, bezier.P3.z, bezier.PointsCount);
+        matrix.SetRow(3, lastRow);
+
+        material.SetMatrix(propertyNameId.Value, matrix);
     }
 }

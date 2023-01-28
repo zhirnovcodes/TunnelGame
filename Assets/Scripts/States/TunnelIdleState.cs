@@ -5,8 +5,8 @@ public class TunnelIdleState : MonoBehaviour
 {
     [SerializeField] private BezierObject _bezier;
     [SerializeField] private MeshRenderer _renderer;
-    [SerializeField] private TunnelMap _map;
-    [SerializeField] private TunnelMoveInternalState _nextState;
+    [SerializeField] private MapBase _map;
+    [SerializeField] private MonoBehaviour _nextState;
 
     private MaterialPropertyBlock _propertyBlock;
     private int? _index;
@@ -41,10 +41,15 @@ public class TunnelIdleState : MonoBehaviour
         {
             return;
         }
+        var detail = _map.Strategy.GetDetail(0);
         var bezier = _bezier.Bezier;
-        bezier.Point1.position = bezier.Point0.position + Vector3.forward * _map.DetailLength;
-        bezier.Point2.position = bezier.Point1.position + _map.DirectionTwo * _map.DetailLength;
+        bezier.Point0.position = detail.Bezier.P0;
+        bezier.Point1.position = detail.Bezier.P1;
+        bezier.Point2.position = detail.Bezier.P2;
+        if (bezier.Point3 != null)
+        { bezier.Point3.position = detail.Bezier.P3; }
+        //BezierExtentions.SendBezierToShader()
 
-        _bezier.Bezier.SendBezierToShader(_renderer, ref _propertyBlock, ref _index);
+        //_bezier.Bezier.SendBezierToShader(_renderer, ref _propertyBlock, ref _index);
     }
 }
