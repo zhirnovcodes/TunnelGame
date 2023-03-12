@@ -9,9 +9,22 @@ public struct BezierData
     public Vector3 P2;
     public Vector3 P3;
 
+    public Vector3 Up;
+
     public int PointsCount;
 
     public float Length;
+
+    public BezierData(Vector3 p0, Vector3 p1)
+    {
+        P0 = p0;
+        P1 = p1;
+        P2 = Vector3.zero;
+        P3 = Vector3.zero;
+        PointsCount = 2;
+        Length = 0;
+        Up = Vector3.up;
+    }
 
     public BezierData(Vector3 p0, Vector3 p1, Vector3 p2)
     {
@@ -21,6 +34,7 @@ public struct BezierData
         P3 = Vector3.zero;
         PointsCount = 3;
         Length = 0;
+        Up = Vector3.up;
     }
 
     public BezierData(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)
@@ -31,6 +45,7 @@ public struct BezierData
         P3 = p3;
         PointsCount = 4;
         Length = 0;
+        Up = Vector3.up;
     }
     public Matrix4x4 ToMatrix4x4()
     {
@@ -53,6 +68,7 @@ public struct BezierData
             P2 = Vector3.Slerp(P2, bezierTo.P2, t),
             P3 = Vector3.Slerp(P3, bezierTo.P3, t),
             Length = Mathf.Lerp(Length, bezierTo.Length, t), 
+            Up = Up,
             PointsCount = Mathf.Max(PointsCount, bezierTo.PointsCount)
         };
     }
@@ -64,9 +80,9 @@ public struct BezierData
         {
             case 0: return new PositionRotation { Position = Vector3.zero, Rotation = Quaternion.identity };
             case 1: return new PositionRotation { Position = P0, Rotation = Quaternion.identity };
-            case 2: return BezierExtentions.LerpBezier(P0, P1, t);
-            case 3: return BezierExtentions.LerpBezier(P0, P1, P2, t);
-            case 4: return BezierExtentions.LerpBezier(P0, P1, P2, P3, t);
+            case 2: return BezierExtentions.LerpBezier(P0, P1, t, Up);
+            case 3: return BezierExtentions.LerpBezier(P0, P1, P2, t, Up);
+            case 4: return BezierExtentions.LerpBezier(P0, P1, P2, P3, t, Up);
         }
 
         throw new System.NotImplementedException();
@@ -75,20 +91,14 @@ public struct BezierData
 
     public BezierData AddPositionRotation(PositionRotation position)
     {
-        var d0 = P1 - P0;
-        var d1 = P2 - P0;
-        var d2 = P3 - P2;
+        var p0 = position.Rotation * P0 + position.Position;
+        var p1 = position.Rotation * P1 + position.Position;
+        var p2 = position.Rotation * P2 + position.Position;
+        var p3 = position.Rotation * P3 + position.Position;
 
-        d0 = position.Rotation * d0;
-        d1 = position.Rotation * d1;
-        d2 = position.Rotation * d2;
+        var up = position.Rotation * Up;
 
-        var p0 = P0 + position.Position;
-        var p1 = p0 + d0;
-        var p2 = p0 + d1;
-        var p3 = p0 + d2;
-
-        return new BezierData { P0 = p0, P1 = p1, P2 = p2, P3 = p3, Length = Length, PointsCount = PointsCount };
+        return new BezierData { P0 = p0, P1 = p1, P2 = p2, P3 = p3, Length = Length, PointsCount = PointsCount, Up = up };
     }
 
     public void Scale(float value)

@@ -32,7 +32,7 @@ public class SpawnTunnelState : MonoBehaviour
 
         Mesh2DFactory.FillCircleMesh2D(Mesh2D, Slices, ShadedInside, Radius, SpinDegrees);
 
-        for (int i = 0; i < MaxCount - 1; i++)
+        for (int i = 0; i < MaxCount - 2; i++)
         {
             SpawnDetail();
         }

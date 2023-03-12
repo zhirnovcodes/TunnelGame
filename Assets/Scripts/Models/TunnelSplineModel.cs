@@ -15,8 +15,7 @@ public class TunnelSplineModel : MonoBehaviour
 
     public void Append(BezierData data)
     {
-        var countBefore = Count;
-        var positionBefore = TunnelData.Spline.Lerp(countBefore);
+        var positionBefore = TunnelData.Spline.Lerp(Count);
         var newBezier = data.AddPositionRotation( positionBefore);
 
         TunnelData.Spline.BezierList.Add(newBezier);
@@ -67,7 +66,10 @@ public class TunnelSplineModel : MonoBehaviour
             }
             if (speedSign < 0)
             {
-                throw new System.NotImplementedException();
+                var tLocal = z % 1;
+
+                z = indexCurrent + BezierMovePosition(TunnelData.Spline.BezierList[indexCurrent - MinIndex], tLocal, ref speedZ);
+                indexCurrent = Mathf.FloorToInt(z);
             }
         }
 
@@ -93,5 +95,16 @@ public class TunnelSplineModel : MonoBehaviour
         speed = (Mathf.Abs(speed) < tolerance || !Mathf.Approximately(speedSign, Mathf.Sign(speed))) ? 0 : speed;
 
         return t + deltaT;
+    }
+
+    private void OnDrawGizmos()
+    {
+        for (int i = 0; i < Count; i++)
+        {
+            var bezier = TunnelData.Spline.BezierList[i];
+            var pr = bezier.Lerp(0);
+
+            Gizmos.DrawRay(new Ray(pr.Position, bezier.Up));
+        }
     }
 }

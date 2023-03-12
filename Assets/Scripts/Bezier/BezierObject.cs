@@ -7,6 +7,8 @@ public class BezierObject : MonoBehaviour
     [SerializeField] private Transform _p2;
     [SerializeField] private Transform _p3;
 
+    [SerializeField] private Vector3 _up = Vector3.up;
+
     [SerializeField] private float _t;
     [SerializeField] private bool _shouldDraw;
 
@@ -23,6 +25,8 @@ public class BezierObject : MonoBehaviour
             P1 = GetPosition(1),
             P2 = GetPosition(2),
             P3 = GetPosition(3),
+
+            Up = _up,
 
             PointsCount = GetPointsCount()
         };
@@ -55,11 +59,13 @@ public class BezierObject : MonoBehaviour
     {
         if (_shouldDraw)
         {
-            DrawBezier(true, _t);
+            DrawBezier();
+            var point = ToBezierData().Lerp(_t);
+            UnityEditor.Handles.PositionHandle(point.Position, point.Rotation);
         }
     }
 
-    private void DrawBezier(bool shouldDrawHandles = true, float t = 0)
+    private void DrawBezier()
     {
         var count = GetPointsCount();
 
@@ -71,17 +77,17 @@ public class BezierObject : MonoBehaviour
             case 3:
                 UnityEditor.Handles.DrawBezier(
                     GetPosition(0),
-                    GetPosition(1),
                     GetPosition(2),
+                    GetPosition(1),
                     GetPosition(2),
                     Color.white, Texture2D.whiteTexture, 2);
                 break;
             case 4:
                 UnityEditor.Handles.DrawBezier(
                     GetPosition(0),
+                    GetPosition(3),
                     GetPosition(1),
                     GetPosition(2),
-                    GetPosition(3),
                     Color.white, Texture2D.whiteTexture, 2);
                 break;
         }
@@ -90,17 +96,15 @@ public class BezierObject : MonoBehaviour
 
     private Vector3 GetPosition(int index)
     {
-        Vector3? position = null;
-
         switch (index)
         {
-            case 0: position = _p0?.position; break;
-            case 1: position = _p1?.position; break;
-            case 2: position = _p2?.position; break;
-            case 3: position = _p3?.position; break;
+            case 0: return _p0 == null ? Vector3.zero : _p0.position;
+            case 1: return _p1 == null ? Vector3.zero : _p1.position;
+            case 2: return _p2 == null ? Vector3.zero : _p2.position;
+            case 3: return _p3 == null ? Vector3.zero : _p3.position;
         }
 
-        return position ?? Vector3.zero;
+        return Vector3.zero;
     }
 
     // todo
@@ -114,4 +118,5 @@ public class BezierObject : MonoBehaviour
     
 
     */
+
 }

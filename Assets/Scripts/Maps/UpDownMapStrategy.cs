@@ -14,6 +14,10 @@ public class UpDownMapStrategy : IMapStrategy, IScaleable
 
         data = new BezierData[] { straight, curvedUp, straight, curvedDown };
 
+        foreach (var d in data)
+        {
+            d.Scale(Scale);
+        }
     }
 
     public BezierData GetBezier(int index)
