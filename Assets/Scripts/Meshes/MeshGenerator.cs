@@ -73,7 +73,7 @@ public class MeshGenerator : MonoBehaviour
 
     private void ResetMesh3D()
     {
-        _tunnel = Mesh3DFactory.CreateCapsule( _mesh2D, _fragments, _roundEdge );
+        Mesh3DFactory.CreateCapsule( _mesh2D, _fragments, _roundEdge, ref _tunnel );
     }
 
 #if UNITY_EDITOR

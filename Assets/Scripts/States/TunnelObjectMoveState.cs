@@ -38,7 +38,7 @@ public class TunnelObjectMoveState : MonoBehaviour
             _t = _tStart;
         }
 
-        var position = _bezier.Bezier.Lerp(_t);
+        var position = _bezier.ToBezierData().Lerp(_t);
 
         transform.position = position.Position + 
             position.Rotation * (Vector3.up * _localPosition.y) +

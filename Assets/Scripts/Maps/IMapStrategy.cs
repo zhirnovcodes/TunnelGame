@@ -1,6 +1,6 @@
 public interface IMapStrategy
 {
-    TunnelDetailData GetDetail(int index);
+    BezierData GetBezier(int index);
 }
 
 public interface IScaleable

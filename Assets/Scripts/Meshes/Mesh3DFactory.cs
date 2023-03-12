@@ -1,12 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public static class Mesh3DFactory
 {
-    public static Mesh3D CreateCapsule(Mesh2D mesh2D, int fragments, float roundEdge)
+    public static Mesh3D CreateCapsule(Mesh2D mesh2D, int fragments, float roundEdge, ref Mesh3D mesh)
     {
-        var mesh = new Mesh3D();
+        mesh = mesh ?? new Mesh3D();
+
+        mesh.Clear();
 
         var verticesCount2D = mesh2D.Vertices.Count;
 
@@ -14,7 +14,7 @@ public static class Mesh3DFactory
         {
             var t = Mathf.InverseLerp(0f, fragments, f);
 
-            var bPoint = new BezierPoint
+            var bPoint = new PositionRotation
             {
                 Position = Vector3.Lerp(Vector3.zero, Vector3.forward, t),
             };
@@ -98,7 +98,7 @@ public static class Mesh3DFactory
 
     }
 
-    public static void FillTunnel3D(Mesh3D mesh, Mesh2D mesh2D, Bezier bezier, int fragments, float radius, bool shouldClear = true)
+    public static void FillTunnel3D(Mesh3D mesh, Mesh2D mesh2D, BezierData bezier, int fragments, float radius, bool shouldClear = true)
     {
         if (shouldClear)
         { 

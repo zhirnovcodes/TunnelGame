@@ -6,7 +6,7 @@ using UnityEngine;
 public class AllSidesMapStrategy : IMapStrategy, IScaleable
 {
     private int[] _indicies;
-    private TunnelDetailData[] _dictionary;
+    private BezierData[] _dictionary;
     private List<int[]> _rules;
     private int _capacity;
 
@@ -16,15 +16,16 @@ public class AllSidesMapStrategy : IMapStrategy, IScaleable
     {
         _capacity = capacity;
 
-        _dictionary = new TunnelDetailData[]
+        _dictionary = new BezierData[]
         {
-            TunnelDetailFactory.BuildStraight(),
-            TunnelDetailFactory.BuildCurved(Vector3.up),
-            TunnelDetailFactory.BuildCurved(Vector3.down),
-            TunnelDetailFactory.BuildCurved(Vector3.left),
-            TunnelDetailFactory.BuildCurved(Vector3.right),
+            BezierFactory.BuildStraight(),
+            BezierFactory.BuildCurved90(Vector3.up),
+            BezierFactory.BuildCurved90(Vector3.down),
+            BezierFactory.BuildCurved90(Vector3.left),
+            BezierFactory.BuildCurved90(Vector3.right),
         };
 
+        /*
         _rules = new List<int[]>
         {
             new int[] { 0, 1, 2, 3, 4 },
@@ -32,6 +33,15 @@ public class AllSidesMapStrategy : IMapStrategy, IScaleable
             new int[] { 3, 4, 0 },
             new int[] { 1, 2, 0 },
             new int[] { 1, 2, 0 },
+        };
+        */
+        _rules = new List<int[]>
+        {
+            new int[] { 0, 1, 2, 3, 4 },
+            new int[] { 0 },
+            new int[] { 0 },
+            new int[] { 0 },
+            new int[] { 0 },
         };
 
         _indicies = new int[capacity];
@@ -42,10 +52,12 @@ public class AllSidesMapStrategy : IMapStrategy, IScaleable
         }
     }
 
-    public TunnelDetailData GetDetail(int index)
+    public BezierData GetBezier(int index)
     {
         index = Mathf.Max(0, index);
-        return _dictionary[_indicies[index % _capacity]] * Scale;
+        var bezier = _dictionary[_indicies[index % _capacity]];
+        bezier.Scale(Scale);
+        return bezier;
     }
 
     private int GenerateIndex(int lastIndex)

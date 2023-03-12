@@ -17,19 +17,15 @@ public class Mesh3D
         Uvs.Clear();
         Triangles.Clear();
     }
-}
 
-public static class Mesh3DExtentions
-{
-    public static void FillMeshFilter(this MeshFilter filter, Mesh3D mesh3D, ref Mesh mesh)
+    public void ToMesh(ref Mesh mesh)
     {
         mesh = mesh ?? new Mesh();
-        filter.mesh = mesh;
 
         mesh.Clear();
-        mesh.SetVertices(mesh3D.Vertices);
-        mesh.SetTriangles(mesh3D.Triangles, 0);
-        mesh.SetNormals(mesh3D.Normals);
-        mesh.SetUVs(0, mesh3D.Uvs);
+        mesh.SetVertices(Vertices);
+        mesh.SetTriangles(Triangles, 0);
+        mesh.SetNormals(Normals);
+        mesh.SetUVs(0, Uvs);
     }
 }

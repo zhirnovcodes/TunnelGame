@@ -51,9 +51,9 @@ public class TunnelMoveInternalState : MonoBehaviour
 
         var direction = Vector3.Slerp(_map.DirectionOne, _map.DirectionTwo, _t);
 
-        var bezier = _bezier.Bezier;
-        bezier.Point1.position = bezier.Point0.position + Vector3.forward * _map.DetailLength;
-        bezier.Point2.position = bezier.Point1.position + direction * _map.DetailLength;
+        var bezier = _bezier;
+        //bezier.Point1.position = bezier.Point0.position + Vector3.forward * _map.DetailLength;
+        //bezier.Point2.position = bezier.Point1.position + direction * _map.DetailLength;
 
 
 
@@ -71,7 +71,7 @@ public class TunnelMoveInternalState : MonoBehaviour
         _renderer.sharedMaterial.SetVector("_MainTex_ST", mainTexST);
 
 
-        _bezier.Bezier.SendBezierToShader(_renderer, ref _propertyBlock, ref _index);
+        //_bezier.Bezier.SendBezierToShader(_renderer, ref _propertyBlock, ref _index);
 
     }
 

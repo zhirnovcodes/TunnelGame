@@ -4,21 +4,21 @@ public class UpDownMapStrategy : IMapStrategy, IScaleable
 {
     public float Scale { set; get; } = 1;
 
-    private TunnelDetailData[] data;
+    private BezierData[] data;
 
     public UpDownMapStrategy()
     {
-        var straight = TunnelDetailFactory.BuildStraight();
-        var curvedUp = TunnelDetailFactory.BuildCurved(Vector2.up);
-        var curvedDown = TunnelDetailFactory.BuildCurved(Vector2.down);
+        var straight = BezierFactory.BuildStraight();
+        var curvedUp = BezierFactory.BuildCurved90(Vector2.up);
+        var curvedDown = BezierFactory.BuildCurved90(Vector2.down);
 
-        data = new TunnelDetailData[] { straight, curvedUp, straight, curvedDown };
+        data = new BezierData[] { straight, curvedUp, straight, curvedDown };
 
     }
 
-    public TunnelDetailData GetDetail(int index)
+    public BezierData GetBezier(int index)
     {
-        return data[index % data.Length] * Scale;
+        return data[index % data.Length];
     }
 
 }

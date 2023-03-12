@@ -15,8 +15,6 @@ public class TunnelWiggleState : MonoBehaviour
     [SerializeField] private float _xDivY = 1;
     [SerializeField] private bool _isTextureMirrored;
 
-    private TunnelDetailObjectBuilder _builder = new TunnelDetailObjectBuilder();
-
     private void OnEnable()
     {
         _motionData.StartPosition = _startPosition;
@@ -35,21 +33,21 @@ public class TunnelWiggleState : MonoBehaviour
 
         var t = _motionData.StartPosition;
         var t0 = Mathf.FloorToInt(t);
-        var detail = _map.Strategy.GetDetail(t0);
+        var detail = _map.Strategy.GetBezier(t0);
         var length = detail.Length;
         var deltaDist = speed * Time.deltaTime;
         var deltaT = deltaDist / length;
         t += deltaT;
 
-        var detail0 = _map.Strategy.GetDetail(Mathf.FloorToInt(t));
-        var detail1 = _map.Strategy.GetDetail(Mathf.FloorToInt(t) + 1);
+        var detail0 = _map.Strategy.GetBezier(Mathf.FloorToInt(t));
+        var detail1 = _map.Strategy.GetBezier(Mathf.FloorToInt(t) + 1);
 
         //t %= 1;
 
         _motionData.StartPosition = t;
         _motionData.LengthPassed += deltaDist;
 
-        var bezier = BezierExtentions.Slerp(detail0.Bezier, detail1.Bezier, t % 1);
+        var bezier = detail0.SlerpToBezier(detail1, t % 1);
         _view.Bezier = bezier;
         //_bezierObject.SetData(bezier);
 

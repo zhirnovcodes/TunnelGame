@@ -2,47 +2,61 @@ using UnityEngine;
 
 public class TunnelDetailObjectBuilder
 {
-    private BezierData _data;
-    private Transform _transform;
-    private BezierPoint _point;
-    private BezierObject _bezierObject;
+    private BezierDetailModel _detail;
+    private BezierData? _bezierData;
+    private PositionRotation _point;
+    private float _lengthOffset;
+    private Mesh _mesh;
+
     public TunnelDetailObjectBuilder WithBezierData(BezierData data)
     {
-        _data = data;
+        _bezierData = data;
         return this;
     }
 
-    public TunnelDetailObjectBuilder WithTransform(Transform transform)
+    public TunnelDetailObjectBuilder WithMesh(Mesh mesh)
     {
-        _transform = transform;
+        _mesh = mesh;
         return this;
     }
 
-    public TunnelDetailObjectBuilder WithBezierPoint(BezierPoint point)
+    public TunnelDetailObjectBuilder WithBezierDetailModel(BezierDetailModel model)
+    {
+        _detail = model;
+        return this;
+    }
+
+    public TunnelDetailObjectBuilder WithWorldPositionRotation(PositionRotation point)
     {
         _point = point;
         return this;
     }
 
-    public TunnelDetailObjectBuilder WithBezierObject(BezierObject bO)
+    public TunnelDetailObjectBuilder WithLengthOffset(float length)
     {
-        _bezierObject = bO;
+        _lengthOffset = length;
         return this;
     }
 
-    public Transform Build()
+    public BezierDetailModel Build()
     {
-        _transform.position = _point.Position;
-        _transform.rotation = _point.Rotation;
-
-        _bezierObject.Bezier.Point0.localPosition = _data.P0;
-        _bezierObject.Bezier.Point1.localPosition = _data.P1;
-        _bezierObject.Bezier.Point2.localPosition = _data.P2;
-        if (_bezierObject.Bezier.Point3 != null)
+        if (_mesh != null)
         {
-            _bezierObject.Bezier.Point3.localPosition = _data.P3;
+            _detail.GetComponent<MeshFilter>().mesh = _mesh;
         }
 
-        return _transform;
+        if (_bezierData.HasValue)
+        {
+            _detail.Data.Bezier = _bezierData.Value;
+        }
+
+        _detail.LengthOffset = _lengthOffset;
+
+        _detail.Draw();
+
+        _detail.transform.position = _point.Position;
+        _detail.transform.rotation = _point.Rotation;
+
+        return _detail;
     }
 }

@@ -41,15 +41,15 @@ public class TunnelIdleState : MonoBehaviour
         {
             return;
         }
-        var detail = _map.Strategy.GetDetail(0);
-        var bezier = _bezier.Bezier;
-        bezier.Point0.position = detail.Bezier.P0;
-        bezier.Point1.position = detail.Bezier.P1;
-        bezier.Point2.position = detail.Bezier.P2;
-        if (bezier.Point3 != null)
-        { bezier.Point3.position = detail.Bezier.P3; }
-        //BezierExtentions.SendBezierToShader()
 
-        //_bezier.Bezier.SendBezierToShader(_renderer, ref _propertyBlock, ref _index);
+        var detail = _map.Strategy.GetBezier(0);
+        var bezier = _bezier;
+
+        bezier.P0.position = detail.P0;
+        bezier.P1.position = detail.P1;
+        bezier.P2.position = detail.P2;
+        bezier.P3.position = detail.P3;
+        
+        BezierExtentions.SendBezierToShader( bezier.ToBezierData(), _renderer, ref _propertyBlock, ref _index );
     }
 }

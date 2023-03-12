@@ -59,8 +59,8 @@ Material:
     m_Floats:
     - _BumpScale: 1
     - _Cutoff: 0.5
-    - _DepthDistance: 10.91
-    - _DepthStart: 0.15
+    - _DepthDistance: 2.34
+    - _DepthStart: 0.48
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _FogPower: 1
@@ -70,7 +70,7 @@ Material:
     - _Metallic: 0
     - _Mode: 0
     - _NoiseFrequency: 1.03
-    - _NoisePower: 0.429
+    - _NoisePower: 0.181
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _RoundEdge: 0
