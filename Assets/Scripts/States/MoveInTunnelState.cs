@@ -16,13 +16,15 @@ public class MoveInTunnelState : MonoBehaviour
     private IState CurrentState;
     private IState FMoveForwardState;
     private IState FMoveSideState;
+    private IState FMoveSideVectorState;
 
     private void Awake()
     {
         FMoveForwardState = new MoveForwardState(this);
         FMoveSideState = new MoveSideState(this);
+        FMoveSideVectorState = new MoveSideVectorState(this);
 
-        CurrentState = FMoveForwardState;
+        SetCurrentState(FMoveSideVectorState);
     }
 
     private void Update()
@@ -49,12 +51,14 @@ public class MoveInTunnelState : MonoBehaviour
         Position.Data = Spline.MovePosition(Position.Data, speed * Time.deltaTime);
     }
 
-    private void ApplyWorldPosition()
+    private void ApplyWorldPosition(Quaternion? localRotation = null)
     {
+        localRotation = localRotation ?? Quaternion.identity;
+
         var worldPosition = Spline.GetWorldPositionRotation(Position.Data);
 
         transform.position = worldPosition.Position;
-        transform.rotation = worldPosition.Rotation;
+        transform.rotation = worldPosition.Rotation * localRotation.Value;
     }
 
     private Vector3 GetInputDirection()
@@ -182,6 +186,70 @@ public class MoveInTunnelState : MonoBehaviour
         {
             var direction = Machine.CurrentSidePosition - Machine.TargetSidePosition;
             return (Mathf.Cos(Mathf.PI * t) - 1) / 2f * direction + Machine.CurrentSidePosition;
+
+        }
+
+        public void OnEnd()
+        {
+        }
+    }
+
+    private class MoveSideVectorState : IState
+    {
+        private MoveInTunnelState Machine { get; }
+
+        private Vector3 CurrentSpeed;
+        private float StartPosition;
+        private float TargetPosition;
+
+        private float CurrentPositionX => Machine.Position.Data.Position.x;
+
+        public MoveSideVectorState(MoveInTunnelState machine)
+        {
+            Machine = machine;
+        }
+
+        public void OnStart()
+        {
+            CurrentSpeed = Vector3.forward * Machine.SpeedForward;
+            StartPosition = 0;
+            TargetPosition = 0;
+        }
+
+        public void Update()
+        {
+            var distanceToTarget = TargetPosition - CurrentPositionX;
+            var distanceFromStartToTarget = Mathf.Abs(TargetPosition - StartPosition);
+            var force = XFunction(distanceToTarget, distanceFromStartToTarget, distanceFromStartToTarget);
+            var forceVector = new Vector3(force, 0, 0);
+
+            var speed = (forceVector + CurrentSpeed).normalized * Machine.SpeedForward;
+            var localRotation = Quaternion.FromToRotation(Vector3.forward, speed);
+
+            Machine.MovePosition(speed);
+            Machine.ApplyWorldPosition(localRotation);
+
+            var direction = Machine.GetInputDirection();
+
+            if (direction.sqrMagnitude != 0)
+            {
+                var newPositionX = TargetPosition + (direction * Machine.OffsetSidePosition).x;
+
+                if (Mathf.Abs(newPositionX) <= Machine.OffsetSidePosition)
+                {
+                    StartPosition = CurrentPositionX;
+                    TargetPosition = newPositionX;
+                }
+            }
+        }
+
+        private float XFunction(float x, float distance, float maxLength)
+        {
+            if (distance == 0)
+            {
+                return 0;
+            }
+            return Mathf.Sin(x * Mathf.PI / (distance + 0.0001f)) * maxLength;
 
         }
 

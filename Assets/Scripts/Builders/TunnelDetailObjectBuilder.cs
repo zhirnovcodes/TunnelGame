@@ -45,12 +45,7 @@ public class TunnelDetailObjectBuilder
             _detail.GetComponent<MeshFilter>().mesh = _mesh;
         }
 
-        if (_bezierData.HasValue)
-        {
-            _detail.Data.Bezier = _bezierData.Value;
-        }
-
-        _detail.LengthOffset = _lengthOffset;
+        _detail.TextureOffset = new Vector2( _lengthOffset, 0);
 
         _detail.Draw();
 

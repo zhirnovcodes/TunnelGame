@@ -16,6 +16,8 @@ public class AllSidesMapStrategy : IMapStrategy, IScaleable
     {
         _capacity = capacity;
 
+        var angRadians = Mathf.Deg2Rad * 45f;
+
         _dictionary = new BezierData[]
         {
             BezierFactory.BuildStraight(),
@@ -23,6 +25,10 @@ public class AllSidesMapStrategy : IMapStrategy, IScaleable
             BezierFactory.BuildCurved90(Vector3.down),
             BezierFactory.BuildCurved90(Vector3.left),
             BezierFactory.BuildCurved90(Vector3.right),
+            //BezierFactory.BuildCurved(Vector3.up, angRadians),
+            //BezierFactory.BuildCurved(Vector3.down, angRadians),
+            //BezierFactory.BuildCurved(Vector3.left, angRadians),
+            //BezierFactory.BuildCurved(Vector3.right, angRadians),
         };
 
         /*

@@ -4,4 +4,5 @@ using System.Collections.Generic;
 public class BezierSplineData
 {
     public List<BezierData> BezierList = new List<BezierData>();
+    public float Length;
 }

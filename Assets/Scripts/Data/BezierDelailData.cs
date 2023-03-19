@@ -3,6 +3,6 @@ using UnityEngine;
 [System.Serializable]
 public struct BezierDelailData
 {
-    public Vector4 TextureOffset;
+    public Vector2 TextureOffset;
     public BezierData Bezier;
 }

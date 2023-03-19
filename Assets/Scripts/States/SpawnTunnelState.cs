@@ -13,6 +13,7 @@ public class SpawnTunnelState : MonoBehaviour
     public TunnelDetailObjectBuilder Builder;
     public int MaxCount = 5;
     [Range(0, 1)] public float SpawnPosition = 0.2f;
+    public GameObject PrefabTest;
 
     public int Slices = 3;
     public int Fragments = 8;

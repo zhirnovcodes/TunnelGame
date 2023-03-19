@@ -6,8 +6,14 @@ public class TunnelSplineModel : MonoBehaviour
     private BezierTunnelData TunnelData = new BezierTunnelData();
 
     public int MinIndex => TunnelData.StartIndex;
+
     public int MaxIndex => MinIndex + Count - 1;
+
     public int Count => TunnelData.Spline.BezierList.Count;
+
+    public float LengthOffset => TunnelData.LengthOffset;
+
+    public float SplineLength => TunnelData.Spline.Length;
 
     private void Awake()
     {
@@ -19,6 +25,7 @@ public class TunnelSplineModel : MonoBehaviour
         var newBezier = data.AddPositionRotation( positionBefore);
 
         TunnelData.Spline.BezierList.Add(newBezier);
+        TunnelData.Spline.Length += newBezier.Length;
     }
 
     public void Pop()
@@ -28,6 +35,8 @@ public class TunnelSplineModel : MonoBehaviour
             return;
         }
         TunnelData.StartIndex++;
+        TunnelData.LengthOffset += TunnelData.Spline.BezierList[0].Length;
+        TunnelData.Spline.Length -= TunnelData.Spline.BezierList[0].Length;
         TunnelData.Spline.BezierList.RemoveAt(0);
     }
 
@@ -44,46 +53,57 @@ public class TunnelSplineModel : MonoBehaviour
 
     public SplinePositionData MovePosition(SplinePositionData position, Vector3 speed)
     {
-        var z = Mathf.Clamp(position.Position.z, TunnelData.StartIndex, TunnelData.StartIndex + TunnelData.Spline.BezierList.Count);
-        var indexCurrent = Mathf.FloorToInt(z);
-        var speedSign = Mathf.Sign(speed.z);
-        var speedZ = speed.z;
         var breakCount = 0;
-
-        while (indexCurrent >= MinIndex && indexCurrent <= MaxIndex && !Mathf.Approximately(speedZ, 0)) 
-        {
-            if (++breakCount > 1000)
-            {
-                throw new System.Exception();
-            }
-
-            if (speedSign > 0)
-            {
-                var tLocal = z % 1;
-
-                z = indexCurrent + BezierMovePosition(TunnelData.Spline.BezierList[indexCurrent - MinIndex], tLocal, ref speedZ);
-                indexCurrent = Mathf.FloorToInt(z);
-            }
-            if (speedSign < 0)
-            {
-                var tLocal = z % 1;
-
-                z = indexCurrent + BezierMovePosition(TunnelData.Spline.BezierList[indexCurrent - MinIndex], tLocal, ref speedZ);
-                indexCurrent = Mathf.FloorToInt(z);
-            }
-        }
-
         var x = position.Position.x + speed.x;
         var y = position.Position.y + speed.y;
+        var z = SplineMovePosition(TunnelData.Spline, position.Position.z - TunnelData.StartIndex, speed.z, ref breakCount) + TunnelData.StartIndex;
 
         position.Position = new Vector3(x, y, z);
 
         return position;
     }
 
+    private float SplineMovePosition(BezierSplineData spline, float t, float speed, ref int breakCount)
+    {
+        if (++breakCount > 1000)
+        {
+            throw new System.Exception();
+        }
+
+
+        if (Mathf.Approximately(speed, 0) || spline.BezierList.Count < 0)
+        {
+            return t;
+        }
+
+        var indexCurrent = Mathf.FloorToInt(t);
+
+        if (speed < 0 && (t % 1) <= 0)
+        {
+            indexCurrent--;
+            t = 1;
+        }
+        else
+        {
+            t %= 1;
+        }
+
+        if (indexCurrent >= 0 && indexCurrent < spline.BezierList.Count )
+        {
+            t = BezierMovePosition(spline.BezierList[indexCurrent], t, ref speed) + indexCurrent;
+
+            return SplineMovePosition(spline, t, speed, ref breakCount);
+        }
+
+
+        return Mathf.Clamp(indexCurrent, 0, spline.BezierList.Count);
+    }
+
     private float BezierMovePosition(BezierData bezier, float t, ref float speed)
     {
         const float tolerance = 0.00001f;
+
+        t = (t >= 0 && t <= 1) ? t : (t % 1);
 
         var speedSign = Mathf.Sign(speed);
         var speedToT = speed / bezier.Length;

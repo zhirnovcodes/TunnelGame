@@ -1,21 +1,22 @@
+using System;
 using UnityEngine;
 
 public class BezierDetailModel : MonoBehaviour
 {
-    public BezierDelailData Data;
+    public event Action DrawInvoked;
 
-    public event System.Action DrawInvoked;
+    private BezierDelailData Data;
+
+    public Vector2 TextureOffset 
+    { 
+        set 
+        { 
+            Data.TextureOffset = value; 
+        }
+    }
 
     public void Draw()
     {
         DrawInvoked?.Invoke();
-    }
-
-    public float LengthOffset
-    {
-        set
-        {
-
-        }
     }
 }
