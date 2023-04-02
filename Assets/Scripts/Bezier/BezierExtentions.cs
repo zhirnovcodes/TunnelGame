@@ -91,4 +91,22 @@ public static class BezierExtentions
         return Quaternion.LookRotation(currentDirection, up);
 
     }
+
+    public static void BendMeshWithBezier(Mesh3D mesh, BezierData bezier)
+    {
+        for (int i = 0; i < mesh.Vertices.Count; i++)
+        {
+            var position = new Vector3( mesh.Vertices[i].x, mesh.Vertices[i].y, 0);
+            var normal = mesh.Normals[i];
+            var bezierT = mesh.Uvs[i].y;
+            var bezierPosition = bezier.Lerp(bezierT);
+
+            var positionNew = bezierPosition.Rotation * position + bezierPosition.Position;
+            var normalNew = bezierPosition.Rotation * normal;
+
+            mesh.Vertices[i] = positionNew;
+            mesh.Normals[i] = normalNew;
+        }
+    }
+    
 }

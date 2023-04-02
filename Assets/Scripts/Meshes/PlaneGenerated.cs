@@ -21,7 +21,7 @@ public class PlaneGenerated : MonoBehaviour
             _filter = GetComponent<MeshFilter>();
         }
         Mesh3DFactory.GeneratePlane(_size.x, _size.y, _colls, _rows, ref _plane);
-        _plane.ToMesh(ref _mesh);
+        _mesh = _plane.ToMesh(_mesh);
         _filter.mesh = _mesh;
     }
 

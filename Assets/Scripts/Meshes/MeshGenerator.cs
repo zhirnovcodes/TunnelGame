@@ -68,7 +68,8 @@ public class MeshGenerator : MonoBehaviour
         {
             _mesh2D = new Mesh2D();
         }
-        Mesh2DFactory.FillCircleMesh2D(_mesh2D, _slices, _shadedInside, _radius, _spinDegrees);
+        Mesh2DFactory.CreateCircleMesh2D(_mesh2D, _slices, _shadedInside, _radius);
+        _mesh2D.RotateClockWise(_spinDegrees * Mathf.Deg2Rad);
     }
 
     private void ResetMesh3D()

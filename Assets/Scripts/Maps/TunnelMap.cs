@@ -37,9 +37,9 @@ public class TunnelMap : MapBase
         }
     }
 
-    private IMapStrategy _strategy;
+    private ITunnelMap _strategy;
 
-    public override IMapStrategy Strategy
+    public override ITunnelMap Map
     {
         get
         {
@@ -48,13 +48,13 @@ public class TunnelMap : MapBase
                 switch (_type)
                 {
                     case MapType.Straight:
-                        _strategy = new StraightMapStrategy();
+                        _strategy = new StraightTunnelMap();
                         break;
                     case MapType.AllSides:
-                        _strategy = new AllSidesMapStrategy();
+                        _strategy = new AllSidesTunnelMap(_detailLength);
                         break;
                     case MapType.UpDown:
-                        _strategy = new UpDownMapStrategy();
+                        _strategy = new UpDownTunnelMap();
                         break;
                 }
             }

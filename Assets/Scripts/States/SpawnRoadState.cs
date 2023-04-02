@@ -1,29 +1,25 @@
 using UnityEngine;
 
-public class SpawnTunnelState : MonoBehaviour
+public class SpawnRoadState : MonoBehaviour
 {
-    public SplinePositionModel Observer;
     public TunnelSplineModel Spline;
     public MapBase Map;
     public BezierDetailModel Prefab;
     public int MaxCount = 5;
-    [Range(0, 1)] public float SpawnPosition = 0.2f;
 
     public int Slices = 3;
-    public float FragmentsLength = 0.5f;
-    public float Radius = 5;
-    public bool ShadedInside = true;
+    public float FragmentsLength = 0.2f;
+    public float Width = 5;
     public float SpinDegrees = 0;
-
-    private float LastT;
 
     private TunnelSpawnStrategy SpawnStrategy;
 
     private void Awake()
     {
-        Mesh2D mesh2D = null;
-        Mesh2DFactory.CreateCircleMesh2D(mesh2D, Slices, ShadedInside, Radius);
+        Mesh2D mesh2D = new Mesh2D();
+        Mesh2DFactory.CreateStrictEdge(mesh2D, Slices, true);//.CreateLine(mesh2D, Slices);//
         mesh2D.RotateClockWise(SpinDegrees * Mathf.Deg2Rad);
+        mesh2D.Scale(Width);
 
         SpawnStrategy = new TunnelSpawnStrategy(mesh2D, Prefab, Map.Map, Spline, FragmentsLength);
 
@@ -35,14 +31,8 @@ public class SpawnTunnelState : MonoBehaviour
 
     private void Update()
     {
-        var t = Observer.Data.Position.z % 1;
-
-        //var shouldSpawn = Input.GetKeyDown(KeyCode.Return);
-        //var shouldDespawn = Input.GetKeyDown(KeyCode.Space);
-        var shouldSpawn = t > LastT && LastT < SpawnPosition && t >= SpawnPosition;
-        var shouldDespawn = (Spline.Count + (shouldSpawn ? 1 : 0)) > MaxCount;
-
-        LastT = t;
+        var shouldSpawn = Input.GetKeyDown(KeyCode.Return);
+        var shouldDespawn = Input.GetKeyDown(KeyCode.Space);
 
         if (shouldDespawn)
         {

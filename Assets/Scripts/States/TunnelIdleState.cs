@@ -42,7 +42,7 @@ public class TunnelIdleState : MonoBehaviour
             return;
         }
 
-        var detail = _map.Strategy.GetBezier(0);
+        var detail = _map.Map.GetBezier(0);
         var bezier = _bezier;
 
         bezier.P0.position = detail.P0;

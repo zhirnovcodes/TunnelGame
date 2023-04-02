@@ -98,53 +98,6 @@ public static class Mesh3DFactory
 
     }
 
-    public static void FillTunnel3D(Mesh3D mesh, Mesh2D mesh2D, BezierData bezier, int fragments, float radius, bool shouldClear = true)
-    {
-        if (shouldClear)
-        { 
-            mesh.Clear(); 
-        }
-
-        var verticesCountStart = mesh.Vertices.Count;
-        var verticesCount2D = mesh2D.Vertices.Count;
-
-        for (int f = 0; f < fragments + 1; f++)
-        {
-            var t = Mathf.InverseLerp(0f, fragments, f);
-
-            var bPoint = bezier.Lerp(t);
-
-            for (int s = 0; s < verticesCount2D; s++)
-            {
-                var positionGlobal = bPoint.Rotation * (mesh2D.Vertices[s] * radius) + bPoint.Position;
-                var rotation = bPoint.Rotation;
-                var normal = rotation * mesh2D.Normals[s];
-                var uv = new Vector2(mesh2D.Us[s], t);
-
-                if (f < fragments)
-                {
-                    var offset = verticesCount2D * f + verticesCountStart;
-                    var p1 = mesh2D.Lines[s * 2] + offset;
-                    var p2 = mesh2D.Lines[s * 2 + 1] + offset;
-                    var p3 = p1 + verticesCount2D;
-                    var p4 = p2 + verticesCount2D;
-
-                    mesh.Triangles.Add(p1);
-                    mesh.Triangles.Add(p2);
-                    mesh.Triangles.Add(p3);
-
-                    mesh.Triangles.Add(p2);
-                    mesh.Triangles.Add(p4);
-                    mesh.Triangles.Add(p3);
-                }
-
-                mesh.Vertices.Add(positionGlobal);
-                mesh.Uvs.Add(uv);
-                mesh.Normals.Add(normal);
-            }
-        }
-    }
-
     public static void RemoveVertices(Mesh3D mesh, int count)
     {
         if (count <= 0)
@@ -199,6 +152,99 @@ public static class Mesh3DFactory
                     mesh.Triangles.Add( index4 );
                 }
             }
+        }
+    }
+
+    public static void CreateBezierBendObject(Mesh3D mesh, Mesh2D mesh2D, BezierData bezier, int fragments)
+    {
+        mesh.Clear();
+
+        var verticesCountStart = mesh.Vertices.Count;
+        var verticesCount2D = mesh2D.Vertices.Count;
+
+        for (int f = 0; f < fragments + 1; f++)
+        {
+            var t = Mathf.InverseLerp(0f, fragments, f);
+
+            var bPoint = bezier.Lerp(t);
+
+            for (int s = 0; s < verticesCount2D; s++)
+            {
+                var positionGlobal = bPoint.Rotation * mesh2D.Vertices[s] + bPoint.Position;
+                var rotation = bPoint.Rotation;
+                var normal = rotation * mesh2D.Normals[s];
+                var uv = new Vector2(mesh2D.Us[s], t);
+
+                if (f < fragments)
+                {
+                    var offset = verticesCount2D * f + verticesCountStart;
+                    var p1 = mesh2D.Lines[s * 2] + offset;
+                    var p2 = mesh2D.Lines[s * 2 + 1] + offset;
+                    var p3 = p1 + verticesCount2D;
+                    var p4 = p2 + verticesCount2D;
+
+                    mesh.Triangles.Add(p1);
+                    mesh.Triangles.Add(p2);
+                    mesh.Triangles.Add(p3);
+
+                    mesh.Triangles.Add(p2);
+                    mesh.Triangles.Add(p4);
+                    mesh.Triangles.Add(p3);
+                }
+
+                mesh.Vertices.Add(positionGlobal);
+                mesh.Uvs.Add(uv);
+                mesh.Normals.Add(normal);
+            }
+        }
+    }
+
+    public static void GenetareMesh3D(Mesh3D mesh3D, Mesh2D mesh2D, int fragments)
+    {
+        mesh3D.Clear();
+
+        var positionOffset = Vector3.forward / fragments;
+        var positionCenter = Vector3.zero;
+        var verticesCount2D = mesh2D.Vertices.Count;
+        var lineIndexOffset = 0;
+
+        for (int f = 0; f <= fragments; f++)
+        {
+            var t = (float)f / fragments;
+
+            for (int v = 0; v < mesh2D.Vertices.Count; v++)
+            {
+                var position = (Vector3)mesh2D.Vertices[v] + positionCenter;
+                var normal = (Vector3)mesh2D.Normals[v];
+                var uv = new Vector2(mesh2D.Us[v], t);
+
+                mesh3D.Vertices.Add(position);
+                mesh3D.Normals.Add(normal);
+                mesh3D.Uvs.Add(uv);
+            }
+
+            if (f < fragments)
+            {
+                for (int l = 0; l < mesh2D.Lines.Count - 1; l += 2)
+                {
+                    var p1 = mesh2D.Lines[l] + lineIndexOffset;
+                    var p2 = mesh2D.Lines[l + 1] + lineIndexOffset;
+                    var p3 = p1 + verticesCount2D;
+                    var p4 = p2 + verticesCount2D;
+
+                    mesh3D.Triangles.Add(p1);
+                    mesh3D.Triangles.Add(p2);
+                    mesh3D.Triangles.Add(p3);
+
+                    mesh3D.Triangles.Add(p2);
+                    mesh3D.Triangles.Add(p4);
+                    mesh3D.Triangles.Add(p3);
+                }
+
+                lineIndexOffset += verticesCount2D;
+            }
+
+            positionCenter += positionOffset;
         }
     }
 }

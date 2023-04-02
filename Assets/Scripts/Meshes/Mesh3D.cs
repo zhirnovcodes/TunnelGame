@@ -18,7 +18,7 @@ public class Mesh3D
         Triangles.Clear();
     }
 
-    public void ToMesh(ref Mesh mesh)
+    public Mesh ToMesh(Mesh mesh = null)
     {
         mesh = mesh ?? new Mesh();
 
@@ -27,5 +27,7 @@ public class Mesh3D
         mesh.SetTriangles(Triangles, 0);
         mesh.SetNormals(Normals);
         mesh.SetUVs(0, Uvs);
+
+        return mesh;
     }
 }

@@ -33,14 +33,14 @@ public class TunnelWiggleState : MonoBehaviour
 
         var t = _motionData.StartPosition;
         var t0 = Mathf.FloorToInt(t);
-        var detail = _map.Strategy.GetBezier(t0);
+        var detail = _map.Map.GetBezier(_map.Map.GetBezierIndex(t0));
         var length = detail.Length;
         var deltaDist = speed * Time.deltaTime;
         var deltaT = deltaDist / length;
         t += deltaT;
 
-        var detail0 = _map.Strategy.GetBezier(Mathf.FloorToInt(t));
-        var detail1 = _map.Strategy.GetBezier(Mathf.FloorToInt(t) + 1);
+        var detail0 = _map.Map.GetBezier(_map.Map.GetBezierIndex(Mathf.FloorToInt(t)));
+        var detail1 = _map.Map.GetBezier(_map.Map.GetBezierIndex(Mathf.FloorToInt(t) + 1));
 
         //t %= 1;
 

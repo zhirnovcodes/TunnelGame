@@ -3,22 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class AllSidesMapStrategy : IMapStrategy, IScaleable
+public class AllSidesTunnelMap : ITunnelMap, IScaleable
 {
     private int[] _indicies;
-    private BezierData[] _dictionary;
+    private BezierData[] _bezierArray;
     private List<int[]> _rules;
     private int _capacity;
 
     public float Scale { set; get; } = 1;
 
-    public AllSidesMapStrategy(int capacity = 100)
+    public AllSidesTunnelMap(float scale = 1, int capacity = 100)
     {
         _capacity = capacity;
 
-        var angRadians = Mathf.Deg2Rad * 45f;
-
-        _dictionary = new BezierData[]
+        _bezierArray = new BezierData[]
         {
             BezierFactory.BuildStraight(),
             BezierFactory.BuildCurved90(Vector3.up),
@@ -30,6 +28,11 @@ public class AllSidesMapStrategy : IMapStrategy, IScaleable
             //BezierFactory.BuildCurved(Vector3.left, angRadians),
             //BezierFactory.BuildCurved(Vector3.right, angRadians),
         };
+
+        for (int i = 0; i < _bezierArray.Length; i++)
+        {
+            _bezierArray[i].Scale(scale);
+        }
 
         /*
         _rules = new List<int[]>
@@ -58,11 +61,9 @@ public class AllSidesMapStrategy : IMapStrategy, IScaleable
         }
     }
 
-    public BezierData GetBezier(int index)
+    public BezierData GetBezier(int bezierIndex)
     {
-        index = Mathf.Max(0, index);
-        var bezier = _dictionary[_indicies[index % _capacity]];
-        bezier.Scale(Scale);
+        var bezier = _bezierArray[bezierIndex];
         return bezier;
     }
 
@@ -75,5 +76,17 @@ public class AllSidesMapStrategy : IMapStrategy, IScaleable
 
         var index = _rules[lastIndex][Random.Range(0, _rules[lastIndex].Count())];
         return index;
+    }
+
+	public int GetBezierIndex(int index)
+    {
+        index = Mathf.Max(0, index);
+        return _indicies[index % _capacity];
+    }
+
+	public int GetBezierCount()
+	{
+        return _bezierArray.Length;
+
     }
 }
