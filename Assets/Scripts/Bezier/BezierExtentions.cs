@@ -108,5 +108,33 @@ public static class BezierExtentions
             mesh.Normals[i] = normalNew;
         }
     }
-    
+
+    public static Vector3 LerpBezierPosition(Vector3 point0, Vector3 point1, float t)
+    {
+        return Vector3.Lerp(point0, point1, t);
+    }
+
+    public static Vector3 LerpBezierPosition(Vector3 point0, Vector3 point1, Vector3 point2, float t)
+    {
+        float u = 1 - t;
+
+        return u * u * point0 + 2 * u * t * point1 + t * t * point2;
+    }
+
+    public static Vector3 LerpBezierPosition(Vector3 point0, Vector3 point1, Vector3 point2, Vector3 point3, float t)
+    {
+        float u = 1f - t;
+        float t2 = t * t;
+        float u2 = u * u;
+        float u3 = u2 * u;
+        float t3 = t2 * t;
+
+        Vector3 result =
+            u3 * point0 +
+            3f * u2 * t * point1 +
+            3f * u * t2 * point2 +
+            t3 * point3;
+
+        return result;
+    }
 }

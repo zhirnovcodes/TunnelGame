@@ -8,9 +8,11 @@ public class BezierObject : MonoBehaviour
     [SerializeField] private Transform _p3;
 
     [SerializeField] private Vector3 _up = Vector3.up;
+    public float Scale = 1;
 
     [SerializeField] private float _t;
     [SerializeField] private bool _shouldDraw;
+
 
     public Transform P0 => _p0;
     public Transform P1 => _p1;
@@ -60,9 +62,54 @@ public class BezierObject : MonoBehaviour
         if (_shouldDraw)
         {
             DrawBezier();
-            var point = ToBezierData().Lerp(_t);
-            UnityEditor.Handles.PositionHandle(point.Position, point.Rotation);
+            //var point = ToBezierData().Lerp(_t);
+            //UnityEditor.Handles.PositionHandle(point.Position, point.Rotation);
+            var bezier = ToBezierData();
+            bezier.CalculateLength(1000);
+
+            var point = bezier.LerpPosition(_t);
+            UnityEditor.Handles.PositionHandle(point, Quaternion.identity);
+
+
+
         }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        var bezier = ToBezierData();
+        bezier.CalculateLength(1000);
+
+        //var p0 = bezier.P0;
+
+        //var p1 = bezier.LerpPosition( bezier.GetTFromLength(_t));
+
+        //UnityEditor.Handles.DrawLine(p0, p1);
+
+        for (float l = 0; l <= bezier.Length; l += 0.2f)
+        {
+            var t = bezier.GetTFromLength(l);
+            var pos = bezier.Lerp(t);
+            UnityEditor.Handles.PositionHandle(pos.Position, pos.Rotation);
+        }
+        /*
+        var bezier = ToBezierData();
+        bezier.CalculateLength(1000);
+        float tStart = 0;
+        string str = "";
+        float step = 0.02f;
+        for (float l = step; l <= bezier.Length; l += step)
+        {
+            var tEnd = bezier.GetTFromLength(step, tStart);
+            var p0 = bezier.LerpPosition(tStart);
+            var p1 = bezier.LerpPosition(tEnd);
+            var mag = (p1 - p0).magnitude;
+            str += tStart + " " + tEnd + " " + mag + " " + p0 + " " + p1 + "\n";
+            tStart = tEnd;
+
+        }
+        Debug.Log($"------------{bezier.Length}\n" + str);
+        */
     }
 
     private void DrawBezier()

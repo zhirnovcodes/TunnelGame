@@ -7,6 +7,7 @@ public class FollowObjectState : MonoBehaviour
     public SplinePositionModel Target;
 
     public float Offset = 0.3f;
+    public bool ShouldLookAt = false;
 
     private void Update()
     {
@@ -15,6 +16,10 @@ public class FollowObjectState : MonoBehaviour
         var worldPosition = Spline.GetWorldPositionRotation(Position.Data);
 
         transform.position = worldPosition.Position;
-        transform.rotation = worldPosition.Rotation;
+
+        if (ShouldLookAt)
+        {
+            transform.rotation = Quaternion.LookRotation(Target.transform.position - transform.position, worldPosition.Rotation * Vector3.up);
+        }
     }
 }

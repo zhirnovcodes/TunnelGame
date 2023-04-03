@@ -19,4 +19,9 @@ public static class MathP
     {
         return RotateCounterClockWise(v, -rad);
     }
+
+    public static Vector3 ScaleVector(this Vector3 vector, Vector3 scale)
+    {
+        return new Vector3(vector.x * scale.x, vector.y * scale.y, vector.z * scale.z);
+    }
 }

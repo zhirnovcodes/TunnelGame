@@ -28,4 +28,28 @@ public static class BezierFactory
 
         return bezier;
     }
+    public static BezierData BuildHillUp(float height)
+    {
+        var p0 = Vector3.zero;
+        var p1 = Vector3.forward * 0.5f;
+        var p2 = p1 + Vector3.up * height;
+        var p3 = Vector3.forward + Vector3.up * height;
+
+        var bezier = new BezierData(p0, p1, p2, p3) {  };
+        bezier.CalculateLength(1000);
+
+        return bezier;
+    }
+    public static BezierData BuildHillDown(float height)
+    {
+        var p0 = Vector3.zero;
+        var p1 = Vector3.forward * 0.5f;
+        var p2 = p1 + Vector3.down * height;
+        var p3 = Vector3.forward + Vector3.down * height;
+
+        var bezier = new BezierData(p0, p1, p2, p3) { };
+        bezier.CalculateLength(1000);
+
+        return bezier;
+    }
 }

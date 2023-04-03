@@ -13,7 +13,7 @@ public struct BezierData
 
     public int PointsCount;
 
-    public float Length;
+    public float Length; // TODO float?
 
     public BezierData(Vector3 p0, Vector3 p1)
     {
@@ -108,5 +108,75 @@ public struct BezierData
         P2 *= value;
         P3 *= value;
         Length *= value;
+    }
+
+    public void CalculateLength(int pointsCount)
+    {
+        Length = CalculateArcLength(0, 1, pointsCount);
+    }
+
+    public float CalculateArcLength(float tStart, float tEnd, int pointsCount)
+    {
+        var s = 0f;
+        var pBefore = LerpPosition(tStart);
+        var d = (tEnd - tStart) / pointsCount;
+
+        for (float i = tStart + d; i < tEnd; i += d)
+        {
+            var p = LerpPosition(i);
+            s += (pBefore - p).magnitude;
+            pBefore = p;
+        }
+
+        var p1 = LerpPosition(tEnd);
+
+        s += (pBefore - p1).magnitude;
+
+        return s;
+    }
+
+    public Vector3 LerpPosition(float t)
+    {
+        switch (PointsCount)
+        {
+            case 0: return Vector3.zero;
+            case 1: return P0;
+            case 2: return BezierExtentions.LerpBezierPosition(P0, P1, t);
+            case 3: return BezierExtentions.LerpBezierPosition(P0, P1, P2, t);
+            case 4: return BezierExtentions.LerpBezierPosition(P0, P1, P2, P3, t);
+        }
+
+        throw new System.NotImplementedException();
+    }
+
+
+    public float GetTFromLength(float length, float tStart = 0, int maxDifferentiationsCount = 4, int arcLengthPiecesCount = 5)
+    {
+        var tEnd = tStart + length / Length;
+        var iteration = 0;
+
+        return PresiceTFromLength(length, tStart, tEnd, ref iteration, maxDifferentiationsCount, arcLengthPiecesCount);
+    }
+
+    private float PresiceTFromLength(float length, float tStart, float tEnd, ref int iteration, int maxDifferentiationsCount, int arcLengthPiecesCount = 5)
+    {
+        const float presicion = 0.0001f;
+
+        if (iteration > maxDifferentiationsCount)
+        {
+            return tEnd;
+        }
+        iteration++;
+
+        var magnitude = CalculateArcLength(tStart, tEnd, arcLengthPiecesCount);
+
+        if (Mathf.Abs(length - magnitude) < presicion)
+        {
+            return tEnd;
+        }
+
+        tEnd = tStart + (tEnd - tStart) * length / magnitude;
+
+        return PresiceTFromLength(length, tStart, tEnd, ref iteration, maxDifferentiationsCount);
     }
 }
