@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class UpDownMap : MapBase
 {
-    private ITunnelMap _strategy;
+    private ISplineMap _strategy;
 
-    public override ITunnelMap Map { get; } = new UpDownTunnelMap();
+    public override ISplineMap Map { get; } = new UpDownTunnelMap();
 }

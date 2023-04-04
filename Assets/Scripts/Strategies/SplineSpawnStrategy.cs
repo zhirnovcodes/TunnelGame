@@ -1,22 +1,33 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TunnelSpawnStrategy
+public class SplineSpawnStrategy
 {
 	public TunnelSplineModel Spline;
-	public ITunnelMap Map;
+	public ISplineMap Map;
 	public TunnelDetailObjectBuilder Builder;
 
 	private readonly Spawner<BezierDetailModel> Spawner;
 	private readonly Dictionary<int, Mesh> MeshLibrary = new Dictionary<int, Mesh>();
 
-	public TunnelSpawnStrategy(Mesh2D mesh, BezierDetailModel prefab, ITunnelMap map, TunnelSplineModel spline, float fragmentLength)
+	public SplineSpawnStrategy(Mesh2D mesh, BezierDetailModel prefab, ISplineMap map, TunnelSplineModel spline, float fragmentLength)
 	{
 		Map = map;
 		Spline = spline;
 
 		Spawner = new Spawner<BezierDetailModel>(prefab);
 		Builder = new TunnelDetailObjectBuilder();
+
+		BuildMeshes(mesh, fragmentLength, map);
+	}
+
+	private void BuildMeshes(Mesh2D mesh, float fragmentLength, ISplineMap map)
+	{
+		const float piecesCalcLength = 0.01f;
+
+		var piecesCount = Mathf.FloorToInt(Mathf.Max(1, fragmentLength / piecesCalcLength));
+
+		var parametrizationMap = new SplineParametrizationMap(fragmentLength);
 
 		var mesh3D = new Mesh3D();
 
@@ -25,13 +36,22 @@ public class TunnelSpawnStrategy
 			var bezier = map.GetBezier(i);
 			var fragments = Mathf.Max(1, Mathf.CeilToInt(bezier.Length / fragmentLength));
 
+			parametrizationMap.Clear();
+
+			var tStart = 0f;
+			parametrizationMap.Append(tStart);
+			for (int f = 0; f <= fragments; f++)
+			{
+				tStart = Mathf.Clamp01( bezier.GetTFromLength(fragmentLength, tStart, piecesCount));
+				parametrizationMap.Append(tStart);
+			}
+
 			Mesh3DFactory.GenetareMesh3D(mesh3D, mesh, fragments);
-			BezierExtentions.BendMeshWithBezier(mesh3D, bezier);
+			BezierExtentions.BendMeshWithBezier(mesh3D, bezier, parametrizationMap);
 
 			MeshLibrary.Add(i, mesh3D.ToMesh());
 		}
 	}
-
 
 	public void Spawn()
 	{

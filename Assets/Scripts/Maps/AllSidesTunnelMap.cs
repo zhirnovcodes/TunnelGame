@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class AllSidesTunnelMap : ITunnelMap, IScaleable
+public class AllSidesTunnelMap : ISplineMap, IScaleable
 {
     private int[] _indicies;
     private BezierData[] _bezierArray;

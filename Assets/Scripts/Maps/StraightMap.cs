@@ -2,6 +2,6 @@ using UnityEngine;
 
 public class StraightMap : MapBase
 {
-    public override ITunnelMap Map { get; } = new StraightTunnelMap();
+    public override ISplineMap Map { get; } = new StraightTunnelMap();
 
 }

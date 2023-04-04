@@ -37,9 +37,9 @@ public class TunnelMap : MapBase
         }
     }
 
-    private ITunnelMap _strategy;
+    private ISplineMap _strategy;
 
-    public override ITunnelMap Map
+    public override ISplineMap Map
     {
         get
         {

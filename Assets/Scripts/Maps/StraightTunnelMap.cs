@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class StraightTunnelMap : ITunnelMap
+public class StraightTunnelMap : ISplineMap
 {
 	public float DetailLength { get; set; } = 1;
 

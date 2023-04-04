@@ -7,7 +7,7 @@ public class FollowObjectState : MonoBehaviour
     public SplinePositionModel Target;
 
     public float Offset = 0.3f;
-    public bool ShouldLookAt = false;
+    public bool lockRotation = false;
 
     private void Update()
     {
@@ -17,9 +17,9 @@ public class FollowObjectState : MonoBehaviour
 
         transform.position = worldPosition.Position;
 
-        if (ShouldLookAt)
+        if (!lockRotation)
         {
-            transform.rotation = Quaternion.LookRotation(Target.transform.position - transform.position, worldPosition.Rotation * Vector3.up);
+            transform.rotation = worldPosition.Rotation;
         }
     }
 }

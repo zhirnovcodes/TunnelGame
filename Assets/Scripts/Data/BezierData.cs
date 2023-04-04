@@ -115,6 +115,11 @@ public struct BezierData
         Length = CalculateArcLength(0, 1, pointsCount);
     }
 
+    public void CalculateLength(float arcLength)
+    {
+        Mathf.Max(Mathf.RoundToInt(Length / arcLength));
+    }
+
     public float CalculateArcLength(float tStart, float tEnd, int pointsCount)
     {
         var s = 0f;
@@ -150,7 +155,7 @@ public struct BezierData
     }
 
 
-    public float GetTFromLength(float length, float tStart = 0, int maxDifferentiationsCount = 4, int arcLengthPiecesCount = 5)
+    public float GetTFromLength(float length, float tStart = 0, int arcLengthPiecesCount = 5, int maxDifferentiationsCount = 4)
     {
         var tEnd = tStart + length / Length;
         var iteration = 0;

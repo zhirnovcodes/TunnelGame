@@ -11,6 +11,7 @@ public class BezierObject : MonoBehaviour
     public float Scale = 1;
 
     [SerializeField] private float _t;
+    [SerializeField, Range(0.01f, 1)] private float _arcLength = 0.2f;
     [SerializeField] private bool _shouldDraw;
 
 
@@ -86,7 +87,7 @@ public class BezierObject : MonoBehaviour
 
         //UnityEditor.Handles.DrawLine(p0, p1);
 
-        for (float l = 0; l <= bezier.Length; l += 0.2f)
+        for (float l = 0; l <= bezier.Length; l += _arcLength)
         {
             var t = bezier.GetTFromLength(l);
             var pos = bezier.Lerp(t);

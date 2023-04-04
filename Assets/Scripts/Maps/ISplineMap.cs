@@ -1,4 +1,4 @@
-public interface ITunnelMap
+public interface ISplineMap
 {
     int GetBezierIndex(int index);
     

@@ -17,7 +17,7 @@ public class SpawnTunnelState : MonoBehaviour
 
     private float LastT;
 
-    private TunnelSpawnStrategy SpawnStrategy;
+    private SplineSpawnStrategy SpawnStrategy;
 
     private void Awake()
     {
@@ -25,7 +25,7 @@ public class SpawnTunnelState : MonoBehaviour
         Mesh2DFactory.CreateCircleMesh2D(mesh2D, Slices, ShadedInside, Radius);
         mesh2D.RotateClockWise(SpinDegrees * Mathf.Deg2Rad);
 
-        SpawnStrategy = new TunnelSpawnStrategy(mesh2D, Prefab, Map.Map, Spline, FragmentsLength);
+        SpawnStrategy = new SplineSpawnStrategy(mesh2D, Prefab, Map.Map, Spline, FragmentsLength);
 
         for (int i = 0; i < MaxCount - 2; i++)
         {

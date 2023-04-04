@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class UpDownTunnelMap : ITunnelMap, IScaleable
+public class UpDownTunnelMap : ISplineMap, IScaleable
 {
     public float Scale { set; get; } = 1;
 

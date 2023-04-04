@@ -92,14 +92,15 @@ public static class BezierExtentions
 
     }
 
-    public static void BendMeshWithBezier(Mesh3D mesh, BezierData bezier)
+    public static void BendMeshWithBezier(Mesh3D mesh, BezierData bezier, SplineParametrizationMap parametrization = null)
     {
         for (int i = 0; i < mesh.Vertices.Count; i++)
         {
             var position = new Vector3( mesh.Vertices[i].x, mesh.Vertices[i].y, 0);
             var normal = mesh.Normals[i];
-            var bezierT = mesh.Uvs[i].y;
-            var bezierPosition = bezier.Lerp(bezierT);
+            var mestT = mesh.Uvs[i].y;
+            var bezierT = parametrization == null ? mestT : parametrization.GetT(mestT * bezier.Length);
+            var bezierPosition = bezier.Lerp(mestT >= 1 ? 1 : bezierT);
 
             var positionNew = bezierPosition.Rotation * position + bezierPosition.Position;
             var normalNew = bezierPosition.Rotation * normal;

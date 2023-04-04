@@ -14,7 +14,7 @@ public class SpawnRoadState : MonoBehaviour
     public float Scale = 5;
     public float SpinDegrees = 0;
 
-    private TunnelSpawnStrategy SpawnStrategy;
+    private SplineSpawnStrategy SpawnStrategy;
     private float LastT;
 
     private void Awake()
@@ -26,7 +26,7 @@ public class SpawnRoadState : MonoBehaviour
 
         var map = new RoadMap(1000, Height, 1);
 
-        SpawnStrategy = new TunnelSpawnStrategy(mesh2D, Prefab, map, Spline, FragmentsLength);
+        SpawnStrategy = new SplineSpawnStrategy(mesh2D, Prefab, map, Spline, FragmentsLength);
 
         for (int i = 0; i < MaxCount - 4; i++)
         {

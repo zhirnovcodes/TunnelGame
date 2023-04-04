@@ -1,17 +1,20 @@
 using UnityEngine;
 
-public class RoadMap : ITunnelMap
+public class RoadMap : ISplineMap
 {
     private BezierData[] Bezier;
     private int[][] Rules;
     private int[] Indicies;
 
-    public RoadMap(int capacity, float height, float scale)
+    public RoadMap(int capacity, float height, float scale, float calculationArcLength = 0.01f)
     {
         var up = BezierFactory.BuildHillUp(height);
         var down = BezierFactory.BuildHillDown(height);
         var right = BezierFactory.BuildCurved90(Vector3.right);
         var left = BezierFactory.BuildCurved90(Vector3.left);
+
+        right.Scale(2);
+        left.Scale(2);
 
         Bezier = new BezierData[]
         {
@@ -26,6 +29,7 @@ public class RoadMap : ITunnelMap
 
         for (int i = 0; i < Bezier.Length; i++)
         {
+            Bezier[i].CalculateLength(calculationArcLength);
             Bezier[i].Scale(scale);
         }
 
