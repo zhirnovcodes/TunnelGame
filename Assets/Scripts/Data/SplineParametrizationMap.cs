@@ -8,8 +8,8 @@ public class SplineParametrizationMap
 
     public float ArcLength { get; private set; }
 
-    public int IndexMin { get; private set; }
-    public int IndexMax { get; private set; }
+    public int IndexMin { get; private set; } = 0;
+    public int IndexMax { get; private set; } = -1;
 
     public float LengthMin => IndexMin * ArcLength;
     public float LengthMax => IndexMax * ArcLength;
@@ -28,8 +28,6 @@ public class SplineParametrizationMap
         {
             return 0;
         }
-
-        length = Mathf.Clamp(length, LengthMin, LengthMax);
 
         var index0 = Mathf.Clamp(Mathf.FloorToInt(length / ArcLength), IndexMin, IndexMax);
         var index1 = Mathf.Clamp(index0 + 1, IndexMin, IndexMax);

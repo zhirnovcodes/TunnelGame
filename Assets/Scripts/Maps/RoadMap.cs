@@ -29,7 +29,6 @@ public class RoadMap : ISplineMap
 
         for (int i = 0; i < Bezier.Length; i++)
         {
-            Bezier[i].CalculateLength(calculationArcLength);
             Bezier[i].Scale(scale);
         }
 

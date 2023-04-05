@@ -34,20 +34,22 @@ public class SplineSpawnStrategy
 		for (int i = 0; i < map.GetBezierCount(); i++)
 		{
 			var bezier = map.GetBezier(i);
+			bezier.CalculateLength(piecesCount);
 			var fragments = Mathf.Max(1, Mathf.CeilToInt(bezier.Length / fragmentLength));
 
 			parametrizationMap.Clear();
 
 			var tStart = 0f;
 			parametrizationMap.Append(tStart);
-			for (int f = 0; f <= fragments; f++)
+
+			while (tStart <= 1)
 			{
-				tStart = Mathf.Clamp01( bezier.GetTFromLength(fragmentLength, tStart, piecesCount));
+				tStart = bezier.GetTFromLength(fragmentLength, tStart, piecesCount);
 				parametrizationMap.Append(tStart);
 			}
 
-			Mesh3DFactory.GenetareMesh3D(mesh3D, mesh, fragments);
-			BezierExtentions.BendMeshWithBezier(mesh3D, bezier, parametrizationMap);
+			Mesh3DFactory.GenetareMesh3D(mesh3D, mesh, fragments + 1);
+			BezierExtentions.BendMeshWithBezier(mesh3D, bezier, parametrizationMap); // TODO parametrizationMap
 
 			MeshLibrary.Add(i, mesh3D.ToMesh());
 		}
