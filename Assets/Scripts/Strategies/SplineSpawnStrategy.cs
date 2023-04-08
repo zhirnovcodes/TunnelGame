@@ -5,23 +5,21 @@ public class SplineSpawnStrategy
 {
 	public TunnelSplineModel Spline;
 	public ISplineMap Map;
-	public TunnelDetailObjectBuilder Builder;
 
 	private readonly Spawner<BezierDetailModel> Spawner;
-	private readonly Dictionary<int, Mesh> MeshLibrary = new Dictionary<int, Mesh>();
+	private readonly Dictionary<int, TunnelDetailObjectBuilder> BuilderLibrary = new Dictionary<int, TunnelDetailObjectBuilder>();
 
-	public SplineSpawnStrategy(Mesh2D mesh, BezierDetailModel prefab, ISplineMap map, TunnelSplineModel spline, float fragmentLength)
+	public SplineSpawnStrategy(Mesh2D mesh, BezierDetailModel prefab, ISplineMap map, TunnelSplineModel spline, float fragmentLength, float width)
 	{
 		Map = map;
 		Spline = spline;
 
 		Spawner = new Spawner<BezierDetailModel>(prefab);
-		Builder = new TunnelDetailObjectBuilder();
 
-		BuildMeshes(mesh, fragmentLength, map);
+		BuildMeshes(mesh, fragmentLength, map, width);
 	}
 
-	private void BuildMeshes(Mesh2D mesh, float fragmentLength, ISplineMap map)
+	private void BuildMeshes(Mesh2D mesh, float fragmentLength, ISplineMap map, float width)
 	{
 		const float piecesCalcLength = 0.01f;
 
@@ -51,7 +49,12 @@ public class SplineSpawnStrategy
 			Mesh3DFactory.GenetareMesh3D(mesh3D, mesh, fragments + 1);
 			BezierExtentions.BendMeshWithBezier(mesh3D, bezier, parametrizationMap); // TODO parametrizationMap
 
-			MeshLibrary.Add(i, mesh3D.ToMesh());
+			var builder = new TunnelDetailObjectBuilder().
+				WithMesh(mesh3D.ToMesh()).
+				WithBezierData(bezier).
+				WithWidth(width);
+
+			BuilderLibrary.Add(i, builder);
 		}
 	}
 
@@ -59,18 +62,19 @@ public class SplineSpawnStrategy
 	{
 		var nextBezierIndex = Map.GetBezierIndex(Spline.MaxIndex + 1);
 		var nextBezier = Map.GetBezier(nextBezierIndex);
+		var oldLengthOffset = Spline.LengthOffset + Spline.SplineLength;
 
 		Spline.Append(nextBezier);
 
 		var newSplinePosition = new SplinePositionData { Position = new Vector3(0, 0, Spline.MaxIndex) };
 		var newWorldPosition = Spline.GetWorldPositionRotation(newSplinePosition);
 		var model = Spawner.Spawn();
-		var mesh = MeshLibrary[nextBezierIndex];
+		var builder = BuilderLibrary[nextBezierIndex];
 
-		Builder.
+		builder.
 			WithWorldPositionRotation(newWorldPosition).
 			WithBezierDetailModel(model).
-			WithMesh(mesh).
+			WithLengthOffset(oldLengthOffset).
 			Build();
 	}
 

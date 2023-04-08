@@ -15,7 +15,7 @@ public class SpawnTunnelState : MonoBehaviour
     public bool ShadedInside = true;
     public float SpinDegrees = 0;
 
-    private float LastT;
+    private float LastObserverPosition;
 
     private SplineSpawnStrategy SpawnStrategy;
 
@@ -25,7 +25,7 @@ public class SpawnTunnelState : MonoBehaviour
         Mesh2DFactory.CreateCircleMesh2D(mesh2D, Slices, ShadedInside, Radius);
         mesh2D.RotateClockWise(SpinDegrees * Mathf.Deg2Rad);
 
-        SpawnStrategy = new SplineSpawnStrategy(mesh2D, Prefab, Map.Map, Spline, FragmentsLength);
+        SpawnStrategy = new SplineSpawnStrategy(mesh2D, Prefab, Map.Map, Spline, FragmentsLength, MathP.TAU * Radius);
 
         for (int i = 0; i < MaxCount - 2; i++)
         {
@@ -35,15 +35,22 @@ public class SpawnTunnelState : MonoBehaviour
 
     private void Update()
     {
-        var t = Observer.Data.Position.z % 1;
+        var position = Observer.Data.Position.z;
 
         //var shouldSpawn = Input.GetKeyDown(KeyCode.Return);
         //var shouldDespawn = Input.GetKeyDown(KeyCode.Space);
-        var shouldSpawn = t > LastT && LastT < SpawnPosition && t >= SpawnPosition;
-        var shouldDespawn = (Spline.Count + (shouldSpawn ? 1 : 0)) > MaxCount;
+        //var shouldSpawn = position > LastObserverPosition && LastObserverPosition < SpawnPosition && t >= SpawnPosition;
+        //var shouldDespawn = position > LastObserverPosition && (position > Spline.LengthOffset + );
 
-        LastT = t;
 
+        if (position >= Spline.LengthOffset + 4)
+        {
+            LastObserverPosition = position;
+
+            SpawnStrategy.Despawn();
+            SpawnStrategy.Spawn();
+        }
+        /*
         if (shouldDespawn)
         {
             SpawnStrategy.Despawn();
@@ -52,6 +59,6 @@ public class SpawnTunnelState : MonoBehaviour
         if (shouldSpawn)
         {
             SpawnStrategy.Spawn();
-        }
+        }*/
     }
 }

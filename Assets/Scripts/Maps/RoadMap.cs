@@ -8,13 +8,10 @@ public class RoadMap : ISplineMap
 
     public RoadMap(int capacity, float height, float scale, float calculationArcLength = 0.01f)
     {
-        var up = BezierFactory.BuildHillUp(height);
-        var down = BezierFactory.BuildHillDown(height);
-        var right = BezierFactory.BuildCurved90(Vector3.right);
-        var left = BezierFactory.BuildCurved90(Vector3.left);
-
-        right.Scale(2);
-        left.Scale(2);
+        var up = BezierFactory.BuildWiggledLeft(height);
+        var down = BezierFactory.BuildWiggledRight(height);
+        var right = BezierFactory.BuildCurved90(Vector3.right, 1, calculationArcLength);
+        var left = BezierFactory.BuildCurved90(Vector3.left, 1, calculationArcLength);
 
         Bezier = new BezierData[]
         {

@@ -6,6 +6,7 @@ public class TunnelDetailObjectBuilder
     private BezierData? _bezierData;
     private PositionRotation _point;
     private float _lengthOffset;
+    private float _width = 1f;
     private Mesh _mesh;
 
     public TunnelDetailObjectBuilder WithBezierData(BezierData data)
@@ -38,6 +39,12 @@ public class TunnelDetailObjectBuilder
         return this;
     }
 
+    public TunnelDetailObjectBuilder WithWidth(float width)
+    {
+        _width = width;
+        return this;
+    }
+
     public BezierDetailModel Build()
     {
         if (_mesh != null)
@@ -45,7 +52,11 @@ public class TunnelDetailObjectBuilder
             _detail.GetComponent<MeshFilter>().mesh = _mesh;
         }
 
-        _detail.TextureOffset = new Vector2( _lengthOffset, 0);
+        var length = _bezierData.HasValue ? _bezierData.Value.Length : 1f;
+
+        _detail.Length = length;
+        _detail.LengthOffset = _lengthOffset;
+        _detail.Width = _width;
 
         _detail.Draw();
 

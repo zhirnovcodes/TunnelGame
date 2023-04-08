@@ -3,20 +3,36 @@ using UnityEngine;
 
 public class BezierDetailModel : MonoBehaviour
 {
-    public event Action DrawInvoked;
+    public event Action<BezierDelailData> DrawInvoked;
 
     private BezierDelailData Data;
 
-    public Vector2 TextureOffset 
+    public float Length 
     { 
         set 
         { 
-            Data.TextureOffset = value; 
+            Data.Length = value;
+        }
+    }
+
+    public float LengthOffset
+    {
+        set
+        {
+            Data.LengthOffset = value;
+        }
+    }
+
+    public float Width
+    {
+        set
+        {
+            Data.Width = value;
         }
     }
 
     public void Draw()
     {
-        DrawInvoked?.Invoke();
+        DrawInvoked?.Invoke(Data);
     }
 }

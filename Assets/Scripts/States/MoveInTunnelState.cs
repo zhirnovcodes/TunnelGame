@@ -24,7 +24,7 @@ public class MoveInTunnelState : MonoBehaviour
         FMoveSideState = new MoveSideState(this);
         FMoveSideVectorState = new MoveSideVectorState(this);
 
-        SetCurrentState(FMoveSideVectorState);
+        SetCurrentState(FMoveForwardState);
     }
 
     private void Update()
@@ -48,14 +48,16 @@ public class MoveInTunnelState : MonoBehaviour
 
     private void MovePosition(Vector3 speed)
     {
-        Position.Data = Spline.MovePosition(Position.Data, speed * Time.deltaTime);
+        Position.Data = new SplinePositionData { Position = speed + Position.Data.Position };//Spline.MovePosition(Position.Data, speed * Time.deltaTime);
+        Debug.Log(Position.Data.Position);
     }
 
     private void ApplyWorldPosition(Quaternion? localRotation = null)
     {
         localRotation = localRotation ?? Quaternion.identity;
 
-        var worldPosition = Spline.GetWorldPositionRotation(Position.Data);
+        //var worldPosition = Spline.GetWorldPositionRotation(Position.Data);
+        var worldPosition = Spline.ToWorldSpace(Position.Data.Position);
 
         transform.position = worldPosition.Position;
         transform.rotation = worldPosition.Rotation * localRotation.Value;
@@ -126,13 +128,14 @@ public class MoveInTunnelState : MonoBehaviour
 
         public void Update()
         {
-            var speed = new Vector3(0, 0, Machine.SpeedForward);
+            var speed = new Vector3(0, 0, Machine.SpeedForward) * Time.deltaTime;
 
             Machine.MovePosition(speed);
             Machine.ApplyWorldPosition();
 
             if (Machine.ApplyLeftRightInput())
             {
+                return;
                 Machine.SetCurrentState(Machine.FMoveSideState);
             }
         }
@@ -159,7 +162,7 @@ public class MoveInTunnelState : MonoBehaviour
 
         public void Update()
         {
-            var speed = new Vector3(0, 0, Machine.SpeedForward);
+            var speed = new Vector3(0, 0, Machine.SpeedForward) * Time.deltaTime;
 
             Machine.MovePosition(speed);
 

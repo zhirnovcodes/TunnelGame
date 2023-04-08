@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class TunnelSplineModel : MonoBehaviour
 {
+    [SerializeField] private float _arcLength = 0.02f;
+
     private BezierTunnelData TunnelData = new BezierTunnelData();
 
     public int MinIndex => TunnelData.StartIndex;
@@ -17,12 +19,23 @@ public class TunnelSplineModel : MonoBehaviour
 
     private void Awake()
     {
+        TunnelData.Map = new SplineParametrizationMap(_arcLength);
     }
 
     public void Append(BezierData data)
     {
         var positionBefore = TunnelData.Spline.Lerp(Count);
         var newBezier = data.AddPositionRotation( positionBefore);
+
+        var lengthStart = TunnelData.LengthOffset + TunnelData.Spline.Length - TunnelData.Map.LengthMax;
+        var tStart = data.GetTFromLength(lengthStart, 0);
+
+        for (var l = lengthStart; l <= data.Length; l += TunnelData.Map.ArcLength)
+        {
+            tStart = data.GetTFromLength(TunnelData.Map.ArcLength, tStart);
+
+            TunnelData.Map.Append(tStart);
+        }
 
         TunnelData.Spline.BezierList.Add(newBezier);
         TunnelData.Spline.Length += newBezier.Length;
@@ -34,6 +47,13 @@ public class TunnelSplineModel : MonoBehaviour
         {
             return;
         }
+
+        var removedBezier = TunnelData.Spline.BezierList[0];
+        for (var l = TunnelData.LengthOffset; l <= removedBezier.Length + TunnelData.LengthOffset; l += TunnelData.Map.ArcLength)
+        {
+            TunnelData.Map.Pop();
+        }
+
         TunnelData.StartIndex++;
         TunnelData.LengthOffset += TunnelData.Spline.BezierList[0].Length;
         TunnelData.Spline.Length -= TunnelData.Spline.BezierList[0].Length;
@@ -61,6 +81,18 @@ public class TunnelSplineModel : MonoBehaviour
         position.Position = new Vector3(x, y, z);
 
         return position;
+    }
+
+    public PositionRotation ToWorldSpace(Vector3 bezierSpace)
+    {
+        var t = TunnelData.Map.GetT(bezierSpace.z);
+        var positionLocal = new Vector3(bezierSpace.x, bezierSpace.y, 0);
+        var bezierPositionRotation = TunnelData.Spline.Lerp(t);
+
+        var position = /*bezierPositionRotation.Rotation * positionLocal + */bezierPositionRotation.Position;
+        var rotation = bezierPositionRotation.Rotation;
+
+        return new PositionRotation { Position = position, Rotation = rotation };
     }
 
     private float SplineMovePosition(BezierSplineData spline, float t, float speed, ref int breakCount)

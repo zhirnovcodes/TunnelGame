@@ -20,13 +20,14 @@ public class SpawnRoadState : MonoBehaviour
     private void Awake()
     {
         Mesh2D mesh2D = new Mesh2D();
-        Mesh2DFactory.CreateLine(mesh2D, Slices);//.CreateStrictEdge(mesh2D, Slices, true);//
+        Mesh2DFactory.CreateLine(mesh2D, Slices);
+        //Mesh2DFactory.CreateStrictEdge(mesh2D, Slices, true);//
         mesh2D.RotateClockWise(SpinDegrees * Mathf.Deg2Rad);
         mesh2D.Scale(Width);
 
-        var map = new RoadMap(1000, Height, 1);
+        var map = new RoadMap(1000, Height, Scale);
 
-        SpawnStrategy = new SplineSpawnStrategy(mesh2D, Prefab, map, Spline, FragmentsLength);
+        SpawnStrategy = new SplineSpawnStrategy(mesh2D, Prefab, map, Spline, FragmentsLength, Width);
 
         for (int i = 0; i < MaxCount - 4; i++)
         {
