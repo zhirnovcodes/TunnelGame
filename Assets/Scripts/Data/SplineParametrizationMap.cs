@@ -22,7 +22,7 @@ public class SplineParametrizationMap
         ArcLength = arcLength;
     }
 
-    public float GetT(float length)
+    public float GetTFromLength(float length)
     {
         if (Map.Count == 0)
         {
@@ -48,14 +48,25 @@ public class SplineParametrizationMap
         Map.Add(IndexMax, t);
     }
 
-    public void Pop()
+    public float Peek()
     {
         if (Map.Count == 0)
         {
-            return;
+            return -1;
+        }
+
+        return Map[IndexMin];
+    }
+
+    public bool Pop()
+    {
+        if (Map.Count == 0)
+        {
+            return false;
         }
         Map.Remove(IndexMin);
         IndexMin++;
+        return Map.Count > 0;
     }
 
     public void Clear(float arcLength)

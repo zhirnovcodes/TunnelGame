@@ -99,7 +99,7 @@ public static class BezierExtentions
             var position = new Vector3( mesh.Vertices[i].x, mesh.Vertices[i].y, 0);
             var normal = mesh.Normals[i];
             var mestT = mesh.Uvs[i].y;
-            var bezierT = parametrization == null ? mestT : parametrization.GetT(mestT * bezier.Length);
+            var bezierT = parametrization == null ? mestT : parametrization.GetTFromLength(mestT * bezier.Length);
             var bezierPosition = bezier.Lerp(mestT >= 1 ? 1 : bezierT);
 
             var positionNew = bezierPosition.Rotation * position + bezierPosition.Position;

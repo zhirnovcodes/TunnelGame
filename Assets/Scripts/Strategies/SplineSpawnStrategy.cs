@@ -32,7 +32,6 @@ public class SplineSpawnStrategy
 		for (int i = 0; i < map.GetBezierCount(); i++)
 		{
 			var bezier = map.GetBezier(i);
-			bezier.CalculateLength(piecesCount);
 			var fragments = Mathf.Max(1, Mathf.CeilToInt(bezier.Length / fragmentLength));
 
 			parametrizationMap.Clear();

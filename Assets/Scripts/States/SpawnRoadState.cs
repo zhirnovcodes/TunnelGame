@@ -15,13 +15,12 @@ public class SpawnRoadState : MonoBehaviour
     public float SpinDegrees = 0;
 
     private SplineSpawnStrategy SpawnStrategy;
-    private float LastT;
+    private float LastPosition;
 
-    private void Awake()
+    private void Start()
     {
         Mesh2D mesh2D = new Mesh2D();
         Mesh2DFactory.CreateLine(mesh2D, Slices);
-        //Mesh2DFactory.CreateStrictEdge(mesh2D, Slices, true);//
         mesh2D.RotateClockWise(SpinDegrees * Mathf.Deg2Rad);
         mesh2D.Scale(Width);
 
@@ -29,7 +28,7 @@ public class SpawnRoadState : MonoBehaviour
 
         SpawnStrategy = new SplineSpawnStrategy(mesh2D, Prefab, map, Spline, FragmentsLength, Width);
 
-        for (int i = 0; i < MaxCount - 4; i++)
+        for (int i = 0; i < MaxCount; i++)
         {
             SpawnStrategy.Spawn();
         }
@@ -37,19 +36,12 @@ public class SpawnRoadState : MonoBehaviour
 
     private void Update()
     {
-        var t = Observer.Data.Position.z % 1;
-        var shouldSpawn = t > LastT && LastT < 0.5f && t >= 0.5f;
-        var shouldDespawn = (Spline.Count + (shouldSpawn ? 1 : 0)) > MaxCount;
+        var position = Observer.Data.Position.z;
 
-        LastT = t;
-
-        if (shouldDespawn)
+        if (position - LastPosition >= 4)
         {
+            LastPosition = position;
             SpawnStrategy.Despawn();
-        }
-
-        if (shouldSpawn)
-        {
             SpawnStrategy.Spawn();
         }
     }

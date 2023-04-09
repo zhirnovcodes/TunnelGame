@@ -49,7 +49,6 @@ public class MoveInTunnelState : MonoBehaviour
     private void MovePosition(Vector3 speed)
     {
         Position.Data = new SplinePositionData { Position = speed + Position.Data.Position };//Spline.MovePosition(Position.Data, speed * Time.deltaTime);
-        Debug.Log(Position.Data.Position);
     }
 
     private void ApplyWorldPosition(Quaternion? localRotation = null)

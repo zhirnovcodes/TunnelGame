@@ -22,23 +22,33 @@ public class TunnelSplineModel : MonoBehaviour
         TunnelData.Map = new SplineParametrizationMap(_arcLength);
     }
 
-    public void Append(BezierData data)
+    public void Append(BezierData bezier)
     {
         var positionBefore = TunnelData.Spline.Lerp(Count);
-        var newBezier = data.AddPositionRotation( positionBefore);
+        var newBezier = bezier.AddPositionRotation( positionBefore);
 
-        var lengthStart = TunnelData.LengthOffset + TunnelData.Spline.Length - TunnelData.Map.LengthMax;
-        var tStart = data.GetTFromLength(lengthStart, 0);
-
-        for (var l = lengthStart; l <= data.Length; l += TunnelData.Map.ArcLength)
-        {
-            tStart = data.GetTFromLength(TunnelData.Map.ArcLength, tStart);
-
-            TunnelData.Map.Append(tStart);
-        }
+        var lengthStart = TunnelData.LengthOffset + TunnelData.Spline.Length - TunnelData.Map.LengthMax - TunnelData.Map.ArcLength;
 
         TunnelData.Spline.BezierList.Add(newBezier);
         TunnelData.Spline.Length += newBezier.Length;
+
+        var tStart = bezier.GetTFromLength(lengthStart, 0);
+        var errorCount = 100000000;
+
+        while (tStart <= 1)
+        {
+            if (errorCount <= 0)
+            {
+                throw new System.Exception($"{this.name} errorCount");
+            }
+            errorCount--;
+
+            TunnelData.Map.Append(tStart + MaxIndex);
+
+            tStart = bezier.GetTFromLength(TunnelData.Map.ArcLength, tStart);
+
+        }
+
     }
 
     public void Pop()
@@ -48,10 +58,15 @@ public class TunnelSplineModel : MonoBehaviour
             return;
         }
 
-        var removedBezier = TunnelData.Spline.BezierList[0];
-        for (var l = TunnelData.LengthOffset; l <= removedBezier.Length + TunnelData.LengthOffset; l += TunnelData.Map.ArcLength)
+        var errorCount = 100000000;
+
+        while (TunnelData.StartIndex == Mathf.FloorToInt(TunnelData.Map.Peek()) && TunnelData.Map.Pop())
         {
-            TunnelData.Map.Pop();
+            if (errorCount <= 0)
+            {
+                throw new System.Exception("Pop");
+            }
+            errorCount--;
         }
 
         TunnelData.StartIndex++;
@@ -83,16 +98,17 @@ public class TunnelSplineModel : MonoBehaviour
         return position;
     }
 
-    public PositionRotation ToWorldSpace(Vector3 bezierSpace)
+    public PositionRotation ToWorldSpace(Vector3 splineSpacePosition)
     {
-        var t = TunnelData.Map.GetT(bezierSpace.z);
-        var positionLocal = new Vector3(bezierSpace.x, bezierSpace.y, 0);
-        var bezierPositionRotation = TunnelData.Spline.Lerp(t);
+        var t = TunnelData.Map.GetTFromLength(splineSpacePosition.z);
+        //var positionLocal = new Vector3(splineSpacePosition.x, splineSpacePosition.y, 0);
+        //var bezierPositionRotation = TunnelData.Spline.Lerp(t);
 
-        var position = /*bezierPositionRotation.Rotation * positionLocal + */bezierPositionRotation.Position;
-        var rotation = bezierPositionRotation.Rotation;
-
-        return new PositionRotation { Position = position, Rotation = rotation };
+        //var position = bezierPositionRotation.Rotation * positionLocal + bezierPositionRotation.Position;
+        //var rotation = bezierPositionRotation.Rotation;
+        return GetWorldPositionRotation(new SplinePositionData
+            { Position = new Vector3(splineSpacePosition.x, splineSpacePosition.y, t) });
+        //return new PositionRotation { Position = position, Rotation = rotation };
     }
 
     private float SplineMovePosition(BezierSplineData spline, float t, float speed, ref int breakCount)
@@ -147,16 +163,5 @@ public class TunnelSplineModel : MonoBehaviour
         speed = (Mathf.Abs(speed) < tolerance || !Mathf.Approximately(speedSign, Mathf.Sign(speed))) ? 0 : speed;
 
         return t + deltaT;
-    }
-
-    private void OnDrawGizmos()
-    {
-        for (int i = 0; i < Count; i++)
-        {
-            var bezier = TunnelData.Spline.BezierList[i];
-            var pr = bezier.Lerp(0);
-
-            Gizmos.DrawRay(new Ray(pr.Position, bezier.Up));
-        }
     }
 }

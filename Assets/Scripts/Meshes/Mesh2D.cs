@@ -33,4 +33,19 @@ public class Mesh2D
             Vertices[i] *= value;
         }
     }
+
+    public float CalculateWidth()
+    {
+        var sum = 0f;
+
+        for (int i = 0; i < Lines.Count; i+=2)
+        {
+            var p0 = Vertices[Lines[i]];
+            var p1 = Vertices[Lines[i + 1]];
+
+            sum += (p0 - p1).magnitude;
+        }
+
+        return sum;
+    }
 }
