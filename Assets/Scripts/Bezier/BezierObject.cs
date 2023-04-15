@@ -76,42 +76,15 @@ public class BezierObject : MonoBehaviour
         }
     }
 
+#if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
         var bezier = ToBezierData();
         bezier.CalculateLength(1000);
 
-        //var p0 = bezier.P0;
-
-        //var p1 = bezier.LerpPosition( bezier.GetTFromLength(_t));
-
-        //UnityEditor.Handles.DrawLine(p0, p1);
-
-        for (float l = 0; l <= bezier.Length; l += _arcLength)
-        {
-            var t = bezier.GetTFromLength(l);
-            var pos = bezier.Lerp(t);
-            UnityEditor.Handles.PositionHandle(pos.Position, pos.Rotation);
-        }
-        /*
-        var bezier = ToBezierData();
-        bezier.CalculateLength(1000);
-        float tStart = 0;
-        string str = "";
-        float step = 0.02f;
-        for (float l = step; l <= bezier.Length; l += step)
-        {
-            var tEnd = bezier.GetTFromLength(step, tStart);
-            var p0 = bezier.LerpPosition(tStart);
-            var p1 = bezier.LerpPosition(tEnd);
-            var mag = (p1 - p0).magnitude;
-            str += tStart + " " + tEnd + " " + mag + " " + p0 + " " + p1 + "\n";
-            tStart = tEnd;
-
-        }
-        Debug.Log($"------------{bezier.Length}\n" + str);
-        */
+        BezierExtentions.DrawBezierHandles(bezier);
     }
+#endif
 
     private void DrawBezier()
     {

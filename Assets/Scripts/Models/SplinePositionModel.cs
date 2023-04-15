@@ -2,5 +2,11 @@ using UnityEngine;
 
 public class SplinePositionModel : MonoBehaviour
 {
-    public SplinePositionData Data;
+    [SerializeField] private SplinePositionData Data;
+
+    public Vector3 Position 
+    {
+        get => Data.Position;
+        set { Data.Position = value; }
+    }
 }

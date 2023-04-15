@@ -7,14 +7,16 @@ public class SplineSpawnStrategy
 	public ISplineMap Map;
 
 	private readonly Spawner<BezierDetailModel> Spawner;
-	private readonly Dictionary<int, TunnelDetailObjectBuilder> BuilderLibrary = new Dictionary<int, TunnelDetailObjectBuilder>();
+	private readonly Dictionary<int, BezierDetailBuilder> BuilderLibrary = new Dictionary<int, BezierDetailBuilder>();
 
-	public SplineSpawnStrategy(Mesh2D mesh, BezierDetailModel prefab, ISplineMap map, TunnelSplineModel spline, float fragmentLength, float width)
+	private bool ShouldSendBezier;
+
+    public SplineSpawnStrategy(Mesh2D mesh, BezierDetailModel prefab, ISplineMap map, TunnelSplineModel spline, float fragmentLength, float width, bool shouldSendBezier)
 	{
 		Map = map;
 		Spline = spline;
-
-		Spawner = new Spawner<BezierDetailModel>(prefab);
+        ShouldSendBezier = shouldSendBezier;
+        Spawner = new Spawner<BezierDetailModel>(prefab);
 
 		BuildMeshes(mesh, fragmentLength, map, width);
 	}
@@ -48,7 +50,7 @@ public class SplineSpawnStrategy
 			Mesh3DFactory.GenetareMesh3D(mesh3D, mesh, fragments + 1);
 			BezierExtentions.BendMeshWithBezier(mesh3D, bezier, parametrizationMap); // TODO parametrizationMap
 
-			var builder = new TunnelDetailObjectBuilder().
+			var builder = new BezierDetailBuilder().
 				WithMesh(mesh3D.ToMesh()).
 				WithBezierData(bezier).
 				WithWidth(width);
@@ -70,11 +72,18 @@ public class SplineSpawnStrategy
 		var model = Spawner.Spawn();
 		var builder = BuilderLibrary[nextBezierIndex];
 
-		builder.
+		var newObject = builder.
 			WithWorldPositionRotation(newWorldPosition).
 			WithBezierDetailModel(model).
 			WithLengthOffset(oldLengthOffset).
 			Build();
+
+		if (ShouldSendBezier)
+		{
+			int? i = 0;
+			MaterialPropertyBlock block = null;
+			BezierExtentions.SendBezierToShader(nextBezier, newObject.GetComponent<MeshRenderer>(), ref block, ref i);
+		}
 	}
 
 	public void Despawn()

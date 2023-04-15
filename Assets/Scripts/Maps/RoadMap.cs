@@ -8,20 +8,18 @@ public class RoadMap : ISplineMap
 
     public RoadMap(int capacity, float height, float scale, float calculationArcLength = 0.01f)
     {
-        var up = BezierFactory.BuildWiggledLeft(height);
-        var down = BezierFactory.BuildWiggledRight(height);
+        var wLeft = BezierFactory.BuildWiggledLeft(height);
+        var wright = BezierFactory.BuildWiggledRight(height);
         var right = BezierFactory.BuildCurved90(Vector3.right, 1, calculationArcLength);
         var left = BezierFactory.BuildCurved90(Vector3.left, 1, calculationArcLength);
 
         Bezier = new BezierData[]
         {
             BezierFactory.BuildStraight(), // 0
-            up, // 1
-            down,  // 2
-            up, // 3 other part
-            down, // 4
-            right, // 5
-            left  // 6
+            wLeft, // 1
+            wright,  //2
+            right, // 3
+            left  // 4
         };
 
         for (int i = 0; i < Bezier.Length; i++)
@@ -31,13 +29,11 @@ public class RoadMap : ISplineMap
 
         Rules = new int[][]
         {
-            new int[]{0, 0, 0, 0, 1, 2, 5, 6 }, // 0
+            new int[]{0, 0, 0, 0, 1, 2, 3, 4 }, // 0
             new int[]{0, 4 }, // 1
             new int[]{0, 3 }, // 2
-            new int[]{0 }, // 3
-            new int[]{0 }, // 4
-            new int[]{0, 2, 3 }, // 5
-            new int[]{0, 2, 3 }, // 6
+            new int[]{0, 2, 3 }, // 3
+            new int[]{0, 2, 3 }, // 4
         };
 
         Indicies = new int[capacity];

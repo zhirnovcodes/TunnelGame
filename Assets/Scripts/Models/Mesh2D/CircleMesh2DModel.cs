@@ -15,6 +15,7 @@ public class CircleMesh2DModel : Mesh2DModelBase
         if (IsStrictEdge)
         {
             Mesh2DFactory.CreateStrictEdge(mesh2D, Slices, IsShadedInside);
+            mesh2D.Scale(Radius);
         }
         else
         {

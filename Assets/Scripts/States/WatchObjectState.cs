@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class WatchObjectState : MonoBehaviour
 {
+    public Transform Parent;
     public Transform Target;
 
     void Start()
@@ -13,6 +14,6 @@ public class WatchObjectState : MonoBehaviour
 
     private void LateUpdate()
     {
-        transform.rotation = Quaternion.LookRotation(Target.position - transform.position, Vector3.up);
+        transform.rotation = Quaternion.LookRotation(Target.position - transform.position, (Parent?.rotation ?? Quaternion.identity) * Vector3.up);
     }
 }

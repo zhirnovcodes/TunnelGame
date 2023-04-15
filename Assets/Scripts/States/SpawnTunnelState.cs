@@ -10,6 +10,7 @@ public class SpawnTunnelState : MonoBehaviour
 
     public int MaxCount = 5;
     public float FragmentsLength = 0.5f;
+    public float OffetToSpawn = 8;
 
     private SplineSpawnStrategy SpawnStrategy;
     private float LastObserverPosition;
@@ -18,9 +19,9 @@ public class SpawnTunnelState : MonoBehaviour
     {
         var mesh2D = Mesh2D.BuildMesh2D();
 
-        var map = new RoadMap(1000, 0.2f, 1);
+        var map = new WiggleMap(3, Mathf.PI / 5, 4);
 
-        SpawnStrategy = new SplineSpawnStrategy(mesh2D, Prefab, map, Spline, FragmentsLength, mesh2D.CalculateWidth());
+        SpawnStrategy = new SplineSpawnStrategy(mesh2D, Prefab, map, Spline, FragmentsLength, mesh2D.CalculateWidth(), true);
 
         for (int i = 0; i < MaxCount; i++)
         {
@@ -30,11 +31,11 @@ public class SpawnTunnelState : MonoBehaviour
 
     private void Update()
     {
-        var position = Observer.Data.Position.z;
+        var position = Observer.Position.z;
+        var minPosition = Spline.LengthOffset;
 
-        if (position - LastObserverPosition >= 4)
+        if (position - minPosition >= OffetToSpawn)
         {
-            LastObserverPosition = position;
             SpawnStrategy.Despawn();
             SpawnStrategy.Spawn();
         }

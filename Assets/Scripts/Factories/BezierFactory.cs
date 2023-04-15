@@ -21,10 +21,28 @@ public static class BezierFactory
 
         return bezier;
     }
-    public static BezierData BuildCurved(Vector3 direction, float radius, float angleRadians)
+    public static BezierData BuildCurved(Vector2 direction, float angleRadians, float radius, int pointsCount = 1000)
     {
-        var l = angleRadians * radius;
-        var bezier = new BezierData(Vector3.zero, Vector3.forward * radius, (Vector3.forward + direction) * radius) { Length = l };
+        var angleDegrees = angleRadians * Mathf.Rad2Deg;
+        var startPos = Vector3.zero;
+        var radiusV = (Vector3)direction.normalized * radius;
+        var centralPos = startPos + radiusV;
+        var up = Vector3.Cross(Vector3.forward, radiusV).normalized;
+
+        var rotation1 = Quaternion.AngleAxis(angleDegrees / 2f, up);
+        var rotation2 = Quaternion.AngleAxis(angleDegrees, up);
+
+        var radius0 = -radiusV;
+        var radius1 = (rotation1 * -radiusV).normalized * radius / Mathf.Cos(angleRadians / 2f);
+        var radius2 = rotation2 * -radiusV;
+
+        var p0 = centralPos + radius0;
+        var p1 = centralPos + radius1;
+        var p2 = centralPos + radius2;
+
+        var bezier = new BezierData(p0, p1, p2);
+
+        bezier.CalculateLength(pointsCount);
 
         return bezier;
     }

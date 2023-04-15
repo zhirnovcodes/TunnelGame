@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class TunnelDetailObjectBuilder
+public class BezierDetailBuilder
 {
     private BezierDetailModel _detail;
     private BezierData? _bezierData;
@@ -9,37 +9,37 @@ public class TunnelDetailObjectBuilder
     private float _width = 1f;
     private Mesh _mesh;
 
-    public TunnelDetailObjectBuilder WithBezierData(BezierData data)
+    public BezierDetailBuilder WithBezierData(BezierData data)
     {
         _bezierData = data;
         return this;
     }
 
-    public TunnelDetailObjectBuilder WithMesh(Mesh mesh)
+    public BezierDetailBuilder WithMesh(Mesh mesh)
     {
         _mesh = mesh;
         return this;
     }
 
-    public TunnelDetailObjectBuilder WithBezierDetailModel(BezierDetailModel model)
+    public BezierDetailBuilder WithBezierDetailModel(BezierDetailModel model)
     {
         _detail = model;
         return this;
     }
 
-    public TunnelDetailObjectBuilder WithWorldPositionRotation(PositionRotation point)
+    public BezierDetailBuilder WithWorldPositionRotation(PositionRotation point)
     {
         _point = point;
         return this;
     }
 
-    public TunnelDetailObjectBuilder WithLengthOffset(float length)
+    public BezierDetailBuilder WithLengthOffset(float length)
     {
         _lengthOffset = length;
         return this;
     }
 
-    public TunnelDetailObjectBuilder WithWidth(float width)
+    public BezierDetailBuilder WithWidth(float width)
     {
         _width = width;
         return this;

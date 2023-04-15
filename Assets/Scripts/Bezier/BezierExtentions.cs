@@ -138,4 +138,28 @@ public static class BezierExtentions
 
         return result;
     }
+
+#if UNITY_EDITOR
+    public static void DrawBezierHandles(BezierData bezier, float arcLength = 0.2f)
+    {
+
+        for (float l = 0; l <= bezier.Length; l += arcLength)
+        {
+            var t = bezier.GetTFromLength(l);
+            var pos = bezier.Lerp(t);
+            UnityEditor.Handles.PositionHandle(pos.Position, pos.Rotation);
+        }
+    }
+    public static void DrawBezierGizmos(BezierData bezier, int peaces = 32)
+    {
+        var step = 1f / peaces;
+        for (float t = 0; t <= 1 - step; t += step)
+        {
+            var pos0 = bezier.Lerp(t);
+            var pos1 = bezier.Lerp(t + step);
+
+            Gizmos.DrawLine(pos0.Position, pos1.Position);
+        }
+    }
+#endif
 }

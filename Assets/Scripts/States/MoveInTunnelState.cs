@@ -48,7 +48,7 @@ public class MoveInTunnelState : MonoBehaviour
 
     private void MovePosition(Vector3 speed)
     {
-        Position.Data = new SplinePositionData { Position = speed + Position.Data.Position };//Spline.MovePosition(Position.Data, speed * Time.deltaTime);
+        Position.Position = speed + Position.Position;//Spline.MovePosition(Position.Data, speed * Time.deltaTime);
     }
 
     private void ApplyWorldPosition(Quaternion? localRotation = null)
@@ -56,7 +56,7 @@ public class MoveInTunnelState : MonoBehaviour
         localRotation = localRotation ?? Quaternion.identity;
 
         //var worldPosition = Spline.GetWorldPositionRotation(Position.Data);
-        var worldPosition = Spline.ToWorldSpace(Position.Data.Position);
+        var worldPosition = Spline.ToWorldSpace(Position.Position);
 
         transform.position = worldPosition.Position;
         transform.rotation = worldPosition.Rotation * localRotation.Value;
@@ -91,7 +91,7 @@ public class MoveInTunnelState : MonoBehaviour
 
             if (Mathf.Abs(newPositionX) <= OffsetSidePosition)
             {
-                CurrentSidePosition = Position.Data.Position.x;
+                CurrentSidePosition = Position.Position.x;
                 TargetSidePosition = newPositionX;
 
                 return true;
@@ -134,7 +134,6 @@ public class MoveInTunnelState : MonoBehaviour
 
             if (Machine.ApplyLeftRightInput())
             {
-                return;
                 Machine.SetCurrentState(Machine.FMoveSideState);
             }
         }
@@ -165,11 +164,11 @@ public class MoveInTunnelState : MonoBehaviour
 
             Machine.MovePosition(speed);
 
-            var position = Machine.Position.Data.Position;
+            var position = Machine.Position.Position;
             var t = Mathf.Clamp01( (Time.time - StartTime) / TimeMove);
 
             position.x = XFunction(t);
-            Machine.Position.Data.Position = position;
+            Machine.Position.Position = position;
 
             Machine.ApplyWorldPosition();
 
@@ -204,7 +203,7 @@ public class MoveInTunnelState : MonoBehaviour
         private float StartPosition;
         private float TargetPosition;
 
-        private float CurrentPositionX => Machine.Position.Data.Position.x;
+        private float CurrentPositionX => Machine.Position.Position.x;
 
         public MoveSideVectorState(MoveInTunnelState machine)
         {

@@ -6,14 +6,18 @@ public class FollowObjectState : MonoBehaviour
     public SplinePositionModel Position;
     public SplinePositionModel Target;
 
-    public float Offset = 0.3f;
+    public Vector3 Offset = new Vector3(0,0,-1f);
     public bool lockRotation = false;
 
     private void Update()
     {
-        var newData = new SplinePositionData { Position = new Vector3(Position.Data.Position.x, Position.Data.Position.y, Target.Data.Position.z) };
-        Position.Data = Spline.MovePosition(newData, new Vector3(0,0,-Offset));
-        var worldPosition = Spline.GetWorldPositionRotation(Position.Data);
+        var targetPosition = Target?.Position ?? Vector3.zero;
+        var newPosition = targetPosition + Offset;
+
+        Position.Position = newPosition;
+
+        var worldPosition = Spline.ToWorldSpace(newPosition);
+
 
         transform.position = worldPosition.Position;
 
